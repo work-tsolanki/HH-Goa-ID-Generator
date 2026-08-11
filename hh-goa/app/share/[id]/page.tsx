@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TerminalLinkButton } from "@/components/TerminalButton";
-import TerminalTitleBar from "@/components/TerminalTitleBar";
+import { LinkButton } from "@/components/Button";
+import Logo from "@/components/Logo";
 import { getCard } from "@/lib/storage";
 
 type Params = { params: Promise<{ id: string }> };
@@ -42,36 +42,33 @@ export default async function SharePage({ params }: Params) {
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
   return (
-    <main className="scanlines relative flex min-h-full w-full flex-1 flex-col bg-bg">
-      <TerminalTitleBar
-        filename={`${id}.png`}
-        status="SHARED"
-        action={
-          <Link href="/" className="text-sm text-text-dim hover:text-amber">
-            cd ~
-          </Link>
-        }
-      />
+    <main className="flex min-h-full w-full flex-1 flex-col bg-green">
+      <nav className="flex items-center justify-between px-6 py-6 sm:px-12">
+        <Logo />
+        <Link href="/" className="text-sm font-medium text-text-dim hover:text-gold">
+          Build your own
+        </Link>
+      </nav>
 
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center gap-6 px-6 py-8 text-center">
-        <h1 className="text-xl font-bold text-text-bright">$ whoami &mdash; {card.metadata.name}</h1>
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-7 px-6 py-6 text-center">
+        <h1 className="font-display text-2xl text-gold">{card.metadata.name}&rsquo;s builder pass</h1>
 
         {/* eslint-disable-next-line @next/next/no-img-element -- remote Blob-hosted PNG, not a Next-optimizable local asset */}
         <img
           src={card.imageUrl}
           alt={`${card.metadata.name}'s Hacker House Goa 2026 builder pass`}
-          className="w-full max-w-sm border border-hairline"
+          className="w-full max-w-sm rounded"
         />
 
         <div className="flex w-full max-w-sm flex-col gap-3">
-          <TerminalLinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer">
-            share_to_x
-          </TerminalLinkButton>
-          <TerminalLinkButton href={`/api/download/${id}`} download variant="secondary">
-            download.png
-          </TerminalLinkButton>
-          <Link href="/" className="text-sm text-text-dim hover:text-amber">
-            ./build-your-own.sh
+          <LinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer">
+            Share to X
+          </LinkButton>
+          <LinkButton href={`/api/download/${id}`} download variant="secondary">
+            Download PNG
+          </LinkButton>
+          <Link href="/" className="text-sm text-text-dim hover:text-gold">
+            Build your own card
           </Link>
         </div>
       </div>

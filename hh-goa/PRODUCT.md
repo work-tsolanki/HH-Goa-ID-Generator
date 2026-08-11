@@ -18,7 +18,9 @@ This build is a **shortlisting-competition submission** for Hacker House Goa 202
 
 ## Positioning
 
-Reference/competing submission: `https://hhgoa-own-id-card.vercel.app/` ("Hacker Goa House · Builder Social Card Generator", by "2:47 PM Studio") — currently the #1-scoring entry. Its mechanism worth matching: a fully illustrated, hand-composited Goan-postcard card (not a template with a photo dropped in), a dark-green dot-matrix hero with an oversized serif "HACKER HOUSE" wordmark and a neon-pink "गोवा" tag, and a generator page whose own chrome (header, dotted background, step pills) carries the same illustrated-postcard identity as the card it produces — not just matching palette/fonts.
+Superseded twice since the original brief. Current direction (confirmed with the user): the visual world is pinned to the **official event site**, `https://hhgoa.com/` (deep forest-green ground, one gold accent, हॉट pink reserved for "गोवा", a bold serif wordmark, an illustrated beach panorama with palm trees/sun/shack), applied with **Swiss/minimalist structural discipline** (generous whitespace, grid-based, single accent, no gratuitous chrome decoration) per the `ui-ux-pro-max` skill — explicitly not a copy of either prior reference's composition (`hhgoa-own-id-card.vercel.app`'s postcard-with-scallop-ring, or this project's own earlier terminal/hacker direction). The one rich illustrated element is a single authored beach+coding hero scene; everything else on the page stays quiet.
+
+Earlier, now-abandoned directions (kept here for history, not to be revived unprompted): (1) match `hhgoa-own-id-card.vercel.app`'s illustrated-postcard card+chrome closely; (2) a deliberately unique terminal/hacker-CRT world (near-black, amber monospace) built specifically to avoid resembling either reference site.
 
 ## Operating Context
 
@@ -35,14 +37,16 @@ Reference/competing submission: `https://hhgoa-own-id-card.vercel.app/` ("Hacker
 
 ## Brand Commitments
 
-- Name: "HH Goa 2026 Frame Generator." Event name "Hacker House Goa 2026" / "HACKER गोवा HOUSE" lockup (गोवा in hot pink/magenta, hand-lettered feel). Hashtag `#FrameInGoa`. Event dates "28–31 OCT 2026", location "GOA, INDIA."
-- Illustrated Goan-postcard visual language: forest green, gold, magenta, cream palette; flat vector illustration style (postage stamp, signpost, beach house/scooter/surfboards, scalloped photo ring).
+- Name: "HH Goa 2026 Frame Generator." Event name "Hacker House Goa 2026" / "Hacker गोवा House" lockup (गोवा in hot pink, always the one pink element on a page). Hashtag `#FrameInGoa`. Event dates "28–31 OCT 2026", location "GOA, INDIA."
+- Palette pinned to the official event site: deep forest green (`#0d3b28`) ground, gold (`#f4c430`) as the single primary accent, hot pink (`#ec1e79`) reserved tightly for "गोवा". Display wordmark in a bold serif (Abril Fatface); body/UI in Poppins.
+- Structural discipline: Swiss/minimalist — one accent, generous whitespace, no decorative shadows/borders/rings on UI chrome. The one exception is a single authored illustration (beach scene with a developer coding at a shack counter) carrying all the "richness" on the page.
 
 ## Evidence on Hand
 
-- `Inspiration 1.png` (project root, one level above the app) — the original #1 leaderboard submission screenshot supplied at project kickoff.
-- Live reference: `https://hhgoa-own-id-card.vercel.app/` — apparent live version of that same #1 submission (by "2:47 PM Studio"), showing both its landing page and its generator page chrome.
-- Prior `/impeccable critique` snapshot: `.impeccable/critique/2026-08-11T12-03-49Z__app-page-tsx.md` — flagged the generic surrounding chrome (vs. bespoke card) and a placeholder-URL bug as top priorities; both are addressed by this redesign.
+- `Inspiration 1.png` (project root, one level above the app) — the original #1 leaderboard submission screenshot supplied at project kickoff. No longer the pinned visual reference (see Positioning), but still the source of the event name/dates/hashtag facts.
+- `https://hhgoa.com/` — the official event site; current pinned source for palette, wordmark treatment, and illustration style.
+- `https://hhgoa-own-id-card.vercel.app/` — a competing submission; explicitly *not* to be copied, per the user.
+- Prior `/impeccable critique` snapshot: `.impeccable/critique/2026-08-11T12-03-49Z__app-page-tsx.md` — flagged generic surrounding chrome and a placeholder-URL bug; both were fixed and the fixes carried forward through every subsequent redesign (the card never fabricates data for an empty optional field).
 
 ## Product Principles
 

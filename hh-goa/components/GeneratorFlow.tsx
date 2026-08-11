@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import BeachHeroIllustration from "./BeachHeroIllustration";
+import { Button } from "./Button";
+import Logo from "./Logo";
 import ResultCard from "./ResultCard";
-import { TerminalButton } from "./TerminalButton";
-import TerminalTitleBar from "./TerminalTitleBar";
 import UploadDropzone from "./UploadDropzone";
 
 type Step = "hero" | "form" | "rendering" | "result";
@@ -20,11 +21,7 @@ export type GenerateResponse = {
   builderCode: string;
 };
 
-const STEPS = [
-  { key: "upload", label: "upload" },
-  { key: "details", label: "details" },
-  { key: "share", label: "share" },
-] as const;
+const STEPS = ["Upload", "Details", "Share"] as const;
 
 const HYPE_URL = "https://x.com/search?q=%23FrameInGoa&src=typed_query&f=live";
 
@@ -39,7 +36,7 @@ export default function GeneratorFlow() {
   const [result, setResult] = useState<GenerateResponse | null>(null);
 
   const canSubmit = Boolean(photoFile && name.trim() && stackRole.trim());
-  const activeFormStep = photoFile ? "details" : "upload";
+  const activeStepIndex = photoFile ? 1 : 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -83,70 +80,50 @@ export default function GeneratorFlow() {
 
   if (step === "hero") {
     return (
-      <section className="scanlines relative flex flex-1 flex-col bg-bg">
-        <TerminalTitleBar
-          filename="hacker-house-goa.sh — visitor session"
-          status="● LIVE"
-          action={
-            <>
-              <a
-                href={HYPE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden text-sm text-text-dim transition-colors hover:text-amber sm:inline"
-              >
-                check_hype
-              </a>
-              <TerminalButton variant="secondary" onClick={() => setStep("form")}>
-                apply
-              </TerminalButton>
-            </>
-          }
-        />
-
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-14 sm:px-10">
-          <p className="text-base text-amber sm:text-lg">
-            <span className="font-semibold">$ ssh</span> builder@hackerhouse.goa
-          </p>
-          <p className="mt-2 text-xs text-green sm:text-sm">
-            connecting to GOA, IN (15.2993°N, 74.1240°E)… ok
-            <br />
-            authenticating builder session… access granted
-          </p>
-
-          <div className="my-8 border-t border-dashed border-hairline" />
-
-          <h1 className="text-3xl font-bold uppercase leading-tight text-text-bright sm:text-5xl">
-            Hacker_House <span className="text-amber">{"// Goa"}</span>
-          </h1>
-          <p className="mt-3 text-sm text-text-dim sm:text-base">Goa, IN &middot; 28&ndash;31 Oct 2026</p>
-
-          <p className="mt-6 max-w-md text-sm text-text-dim sm:text-base">
-            Upload a photo, set your name and stack, and get a terminal-styled builder
-            pass&mdash;rendered server-side, shareable to X. No sign-up.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <TerminalButton onClick={() => setStep("form")}>./build-my-card.sh</TerminalButton>
-            <span className="cursor-blink text-lg text-amber" aria-hidden>
-              _
-            </span>
+      <section className="flex flex-1 flex-col bg-green">
+        <nav className="flex items-center justify-between px-6 py-6 sm:px-12">
+          <Logo />
+          <div className="flex items-center gap-6">
+            <a
+              href={HYPE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden text-sm font-medium text-text-dim transition-colors hover:text-gold sm:inline"
+            >
+              Check Hype
+            </a>
+            <Button variant="secondary" onClick={() => setStep("form")}>
+              Build my card
+            </Button>
           </div>
+        </nav>
+
+        <div className="mx-auto flex w-full max-w-2xl flex-col items-center px-6 pt-8 pb-16 text-center sm:pt-12">
+          <h1 className="font-display text-4xl leading-tight text-gold sm:text-6xl">
+            Hacker <span className="font-devanagari text-pink normal-case">गोवा</span> House
+          </h1>
+          <p className="mt-4 text-sm tracking-wide text-text-dim sm:text-base">
+            Goa, India &middot; 28&ndash;31 Oct 2026
+          </p>
+          <p className="mt-6 max-w-md text-base text-cream/90">
+            Upload a photo, add your name and stack, and get a shareable builder pass in
+            seconds. No sign-up.
+          </p>
+          <Button className="mt-8" onClick={() => setStep("form")}>
+            Build my card
+          </Button>
         </div>
+
+        <BeachHeroIllustration className="w-full" />
       </section>
     );
   }
 
   if (step === "rendering") {
     return (
-      <section className="scanlines flex flex-1 flex-col items-center justify-center gap-3 bg-bg px-6 py-16 text-center">
-        <p className="text-lg text-amber">$ ./generate.sh</p>
-        <p className="text-sm text-text-dim">
-          compiling builder_pass.png
-          <span className="cursor-blink" aria-hidden>
-            _
-          </span>
-        </p>
+      <section className="flex flex-1 flex-col items-center justify-center gap-4 bg-green px-6 py-16 text-center">
+        <span className="h-3 w-3 animate-pulse rounded-full bg-gold" />
+        <p className="text-base text-cream">Rendering your builder pass&hellip;</p>
       </section>
     );
   }
@@ -156,34 +133,31 @@ export default function GeneratorFlow() {
   }
 
   return (
-    <section className="scanlines relative flex flex-1 flex-col bg-bg">
-      <TerminalTitleBar
-        filename="builder-form.sh"
-        status={`step ${STEPS.findIndex((s) => s.key === activeFormStep) + 1}/${STEPS.length}`}
-        action={
-          <button type="button" onClick={() => setStep("hero")} className="text-sm text-text-dim hover:text-amber">
-            cd ..
-          </button>
-        }
-      />
+    <section className="flex flex-1 flex-col bg-green">
+      <nav className="flex items-center justify-between px-6 py-6 sm:px-12">
+        <Logo />
+        <button
+          type="button"
+          onClick={() => setStep("hero")}
+          className="text-sm font-medium text-text-dim hover:text-gold"
+        >
+          Back
+        </button>
+      </nav>
 
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
-        <ol className="flex items-center gap-2 text-xs text-text-dim">
-          {STEPS.map((s, i) => (
-            <li key={s.key} className="flex items-center gap-2">
-              <span className={s.key === activeFormStep ? "font-semibold text-amber" : ""}>
-                [{i + 1}] {s.label}
-              </span>
-              {i < STEPS.length - 1 && <span className="text-text-faint">&middot;</span>}
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-6 py-6">
+        <ol className="flex items-center justify-center gap-3 text-xs font-semibold tracking-wide text-text-dim">
+          {STEPS.map((label, i) => (
+            <li key={label} className={i === activeStepIndex ? "text-gold" : ""}>
+              {label}
+              {i < STEPS.length - 1 && <span className="ml-3 text-text-dim/50">&middot;</span>}
             </li>
           ))}
         </ol>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6 rounded-sm border border-hairline bg-panel p-5 sm:p-6">
-          <div>
-            <label className="mb-2 block text-sm text-amber" htmlFor="photo-field">
-              $ upload_photo
-            </label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-7">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-cream">Photo</span>
             <UploadDropzone
               previewUrl={previewUrl}
               onFileReady={(file, url) => {
@@ -193,50 +167,51 @@ export default function GeneratorFlow() {
             />
           </div>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm text-amber">$ name --set</span>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-cream">Name</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
-              placeholder="satoshi_nakamoto"
-              className="border border-hairline bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
+              placeholder="Ada Lovelace"
+              className="border-b border-text-dim/40 bg-transparent py-2 text-base text-cream outline-none placeholder:text-text-dim/60 focus:border-gold"
               required
             />
           </label>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm text-amber">$ role --set</span>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-cream">Stack / role</span>
             <input
               value={stackRole}
               onChange={(e) => setStackRole(e.target.value)}
               maxLength={60}
-              placeholder="ai-engineer / frontend / founder"
-              className="border border-hairline bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
+              placeholder="AI Engineer, Frontend, Founder&hellip;"
+              className="border-b border-text-dim/40 bg-transparent py-2 text-base text-cream outline-none placeholder:text-text-dim/60 focus:border-gold"
               required
             />
           </label>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm text-text-dim">$ social --set (optional)</span>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-text-dim">X / social URL (optional)</span>
             <input
               value={socialUrl}
               onChange={(e) => setSocialUrl(e.target.value)}
               maxLength={120}
               placeholder="x.com/yourhandle"
-              className="border border-hairline/50 bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
+              className="border-b border-text-dim/20 bg-transparent py-2 text-base text-cream outline-none placeholder:text-text-dim/60 focus:border-gold"
             />
           </label>
 
-          {error && <p className="text-sm text-red">error: {error}</p>}
+          {error && <p className="text-sm text-pink">{error}</p>}
 
-          <TerminalButton type="submit" disabled={!canSubmit} className="disabled:cursor-not-allowed disabled:opacity-40">
-            ./generate.sh
-          </TerminalButton>
+          <Button type="submit" disabled={!canSubmit} className="disabled:cursor-not-allowed disabled:opacity-40">
+            Generate my card
+          </Button>
         </form>
 
-        <p className="text-center text-xs text-text-faint">
-          $ echo &quot;your card + photo get a public share link&quot;
+        <p className="text-center text-xs text-text-dim">
+          Your card &mdash; with your photo &mdash; gets a public share link, that&apos;s how
+          sharing to X works.
         </p>
       </div>
     </section>

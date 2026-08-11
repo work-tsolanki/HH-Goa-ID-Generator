@@ -2,18 +2,19 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { getFlavor } from "./flavor";
 import { registerCardFonts } from "./fonts";
 import { generateBuilderCode } from "./id";
-import { drawClosingPrompt, drawDivider, drawFooter } from "./layers/footer";
+import { drawBeachBagRow, drawClosingRule, drawFooter, drawHashtag } from "./layers/footer";
 import { CONTENT_PAD, drawFrame } from "./layers/frame";
-import { drawBootLines, drawTitleBar, drawWordmark, TITLE_BAR_H } from "./layers/header";
-import { drawPromptRow } from "./layers/linkAndBadge";
+import { drawSubline, drawWordmark } from "./layers/header";
+import { drawLabelValue, drawName, drawSocialLink } from "./layers/linkAndBadge";
 import { drawPhotoFrame } from "./layers/photo";
 import { CARD_H, CARD_W, COLORS } from "./theme";
+import { drawRule } from "./utils";
 
 export type GenerateCardInput = {
   photo: Buffer;
   name: string;
   stackRole: string;
-  /** The builder's own X/social profile URL, shown as an optional prompt row. */
+  /** The builder's own X/social profile URL, shown only when provided. */
   socialUrl: string;
   /** This card's own share-page URL, encoded into the QR code. */
   shareUrl: string;
@@ -40,92 +41,61 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
   const ctx = canvas.getContext("2d");
 
   drawFrame(ctx);
-  drawTitleBar(ctx);
 
   const contentX = CONTENT_PAD;
   const contentW = CARD_W - CONTENT_PAD * 2;
 
-  let cursorY = drawBootLines(ctx, contentX, TITLE_BAR_H + 56);
-  cursorY += 26;
-  drawDivider(ctx, contentX, cursorY, contentW);
+  drawWordmark(ctx, CONTENT_PAD + 66);
+  drawSubline(ctx, CONTENT_PAD + 112);
 
-  drawWordmark(ctx, cursorY + 68);
-  cursorY += 68 + 46;
+  let cursorY = CONTENT_PAD + 150;
+  drawRule(ctx, CX - 60, cursorY, 120, COLORS.goldDim);
+  cursorY += 46;
 
-  ctx.save();
-  ctx.textAlign = "center";
-  ctx.fillStyle = COLORS.textDim;
-  ctx.font = "16px \"IBM Plex Mono\"";
-  ctx.fillText("GOA, IN · 28–31 OCT 2026", CX, cursorY);
-  ctx.restore();
-  cursorY += 40;
+  const photoW = 520;
+  const photoH = 560;
+  drawPhotoFrame(ctx, photo, { x: CX - photoW / 2, y: cursorY, w: photoW, h: photoH });
+  cursorY += photoH + 64;
 
-  const photoSize = 480;
-  const photoLayout = { x: CX - photoSize / 2, y: cursorY, size: photoSize };
-  drawPhotoFrame(ctx, photo, photoLayout);
-  cursorY = photoLayout.y + photoSize + 56;
-
-  const fieldMaxWidth = contentW;
-  cursorY = drawPromptRow(ctx, contentX, cursorY, {
-    prompt: "whoami",
-    response: input.name.trim().toUpperCase(),
-    maxWidth: fieldMaxWidth,
-  });
-  cursorY += 30;
-
-  cursorY = drawPromptRow(ctx, contentX, cursorY, {
-    prompt: "role --get",
-    response: flavor.badgeTitle,
-    responseColor: COLORS.amber,
-    maxWidth: fieldMaxWidth,
-    responseSize: 28,
-  });
-  cursorY += 30;
-
-  cursorY = drawPromptRow(ctx, contentX, cursorY, {
-    prompt: "class.assign",
-    response: flavor.builderClass,
-    responseColor: COLORS.green,
-    maxWidth: fieldMaxWidth,
-    responseSize: 28,
-  });
-  cursorY += 30;
-
-  cursorY = drawPromptRow(ctx, contentX, cursorY, {
-    prompt: "status.log",
-    response: flavor.tagline,
-    maxWidth: fieldMaxWidth,
-    responseSize: 26,
-  });
-  cursorY += 30;
+  cursorY = drawName(ctx, CX, cursorY, input.name.trim(), contentW - 40) + 60;
+  cursorY = drawLabelValue(ctx, CX, cursorY, "Stack / Role", flavor.badgeTitle, {
+    valueColor: COLORS.gold,
+    maxWidth: contentW - 40,
+  }) + 46;
+  cursorY = drawLabelValue(ctx, CX, cursorY, "Builder Class", flavor.builderClass, {
+    maxWidth: contentW - 40,
+  }) + 46;
+  cursorY = drawLabelValue(ctx, CX, cursorY, "Currently Shipping", flavor.tagline, {
+    maxWidth: contentW - 40,
+  }) + 20;
 
   const url = formatSocialUrl(input.socialUrl);
   if (url) {
-    cursorY = drawPromptRow(ctx, contentX, cursorY, {
-      prompt: "social.link",
-      response: url,
-      maxWidth: fieldMaxWidth,
-      promptSize: 18,
-      responseSize: 22,
-    });
-    cursorY += 26;
+    drawSocialLink(ctx, CX, cursorY + 36, url, contentW - 40);
   }
 
-  cursorY += 10;
-  drawDivider(ctx, contentX, cursorY, contentW);
-  cursorY += 40;
+  // The footer block is bottom-anchored at fixed offsets rather than
+  // continuing the flowing cursor, so its position never depends on
+  // whether the optional social-link row was drawn above it.
+  const hashtagY = CARD_H - CONTENT_PAD - 14;
+  const closingRuleY = hashtagY - 40;
+  const footerTop = closingRuleY - 40 - 156;
+  const beachBagY = footerTop - 40;
+  const rule2Y = beachBagY - 40;
 
-  const footerBottom = CARD_H - CONTENT_PAD - 70;
+  drawRule(ctx, CX - 60, rule2Y, 120, COLORS.goldDim);
+  drawBeachBagRow(ctx, CX, beachBagY);
+
   await drawFooter(ctx, {
-    top: cursorY,
-    bottom: footerBottom,
+    top: footerTop,
     left: contentX,
     right: contentX + contentW,
     builderCode,
     shareUrl: input.shareUrl,
   });
 
-  drawClosingPrompt(ctx, contentX, CARD_H - CONTENT_PAD - 20, contentX + contentW);
+  drawClosingRule(ctx, contentX, closingRuleY, contentW);
+  drawHashtag(ctx, CX, hashtagY);
 
   const png = await canvas.encode("png");
 

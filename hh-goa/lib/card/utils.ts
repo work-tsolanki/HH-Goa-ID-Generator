@@ -39,61 +39,39 @@ export function fitText(
   return size;
 }
 
-/** Faint horizontal CRT scanlines across a region — the terminal world's texture, in place of the postcard world's dot grid. */
-export function drawScanlines(
-  ctx: SKRSContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  opts: { color: string; gap: number; opacity: number },
-) {
+/** A quiet horizontal rule — the only divider device this restrained world uses. */
+export function drawRule(ctx: SKRSContext2D, x: number, y: number, w: number, color: string, weight = 1.5) {
   ctx.save();
-  ctx.globalAlpha = opts.opacity;
-  ctx.strokeStyle = opts.color;
-  ctx.lineWidth = 1;
-  for (let py = y; py < y + h; py += opts.gap) {
-    ctx.beginPath();
-    ctx.moveTo(x, py);
-    ctx.lineTo(x + w, py);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-/** A dashed horizontal rule, terminal `---` divider style. */
-export function drawDashDivider(
-  ctx: SKRSContext2D,
-  x: number,
-  y: number,
-  w: number,
-  opts: { color: string; width?: number; dash?: [number, number] },
-) {
-  ctx.save();
-  ctx.strokeStyle = opts.color;
-  ctx.lineWidth = opts.width ?? 2;
-  ctx.setLineDash(opts.dash ?? [10, 8]);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = weight;
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x + w, y);
   ctx.stroke();
-  ctx.setLineDash([]);
   ctx.restore();
 }
 
-/** macOS-terminal-style traffic-light dots for the title bar. */
-export function drawTrafficLights(
-  ctx: SKRSContext2D,
-  x: number,
-  y: number,
-  opts: { radius: number; gap: number; colors: [string, string, string] },
-) {
+/** A single-stroke palm leaf — the one restrained beach motif allowed on the card face. */
+export function drawPalmAccent(ctx: SKRSContext2D, cx: number, cy: number, size: number, color: string) {
   ctx.save();
-  opts.colors.forEach((color, i) => {
+  ctx.translate(cx, cy);
+  ctx.fillStyle = color;
+  const fronds: Array<[number, number]> = [
+    [-1, -0.15],
+    [-0.55, -0.85],
+    [0, -1.05],
+    [0.55, -0.85],
+    [1, -0.15],
+  ];
+  for (const [fx, fy] of fronds) {
+    ctx.save();
     ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.arc(x + i * opts.gap, y, opts.radius, 0, Math.PI * 2);
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(fx * size * 0.5, fy * size * 0.35, fx * size * 0.72, fy * size * 0.72);
+    ctx.quadraticCurveTo(fx * size * 0.32, fy * size * 0.48, 0, 0);
+    ctx.closePath();
     ctx.fill();
-  });
+    ctx.restore();
+  }
   ctx.restore();
 }

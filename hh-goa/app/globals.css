@@ -1,42 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0d0c;
+  --background: #0d3b28;
   --foreground: #f4f1ea;
 
-  --color-bg: #0b0d0c;
-  --color-panel: #15201a;
-  --color-panel-line: #22322a;
-  --color-hairline: #2c3b33;
-  --color-amber: #ffb300;
-  --color-amber-dim: #8a6318;
-  --color-green: #39d372;
-  --color-green-dim: #1f5c3a;
-  --color-red: #ff5f57;
-  --color-yellow: #ffbd2e;
-  --color-text-bright: #f4f1ea;
-  --color-text-dim: #7d8880;
-  --color-text-faint: #4b544d;
+  --color-green: #0d3b28;
+  --color-green-deep: #092c1d;
+  --color-cream: #f4f1ea;
+  --color-gold: #f4c430;
+  --color-gold-dim: #a9861f;
+  --color-pink: #ec1e79;
+  --color-text-dim: #9db3a4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-bg: var(--color-bg);
-  --color-panel: var(--color-panel);
-  --color-panel-line: var(--color-panel-line);
-  --color-hairline: var(--color-hairline);
-  --color-amber: var(--color-amber);
-  --color-amber-dim: var(--color-amber-dim);
   --color-green: var(--color-green);
-  --color-green-dim: var(--color-green-dim);
-  --color-red: var(--color-red);
-  --color-yellow: var(--color-yellow);
-  --color-text-bright: var(--color-text-bright);
+  --color-green-deep: var(--color-green-deep);
+  --color-cream: var(--color-cream);
+  --color-gold: var(--color-gold);
+  --color-gold-dim: var(--color-gold-dim);
+  --color-pink: var(--color-pink);
   --color-text-dim: var(--color-text-dim);
-  --color-text-faint: var(--color-text-faint);
-  --font-sans: var(--font-mono);
-  --font-mono: var(--font-mono);
+  --font-sans: var(--font-poppins);
+  --font-display: var(--font-display);
+  --font-devanagari: var(--font-yatra-one);
 }
 
 body {
@@ -45,38 +34,11 @@ body {
 }
 
 ::selection {
-  background: var(--color-amber);
-  color: var(--color-bg);
+  background: var(--color-gold);
+  color: var(--color-green);
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-amber);
+  outline: 3px solid var(--color-gold);
   outline-offset: 2px;
-}
-
-/* Faint CRT scanlines — the terminal world's texture, in place of the
-   postcard world's dot grid. */
-.scanlines {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.025) 0px,
-    rgba(255, 255, 255, 0.025) 1px,
-    transparent 1px,
-    transparent 4px
-  );
-}
-
-@keyframes blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-.cursor-blink {
-  animation: blink 1s step-start infinite;
 }

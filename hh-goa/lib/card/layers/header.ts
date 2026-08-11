@@ -1,77 +1,58 @@
 import type { SKRSContext2D } from "@napi-rs/canvas";
 import { CARD_W, COLORS, FONT_FAMILY } from "../theme";
-import { drawTrafficLights, fitText } from "../utils";
+import { drawPalmAccent, fitText } from "../utils";
 
-export const TITLE_BAR_H = 72;
+const CX = CARD_W / 2;
 
-export function drawTitleBar(ctx: SKRSContext2D) {
+export function drawWordmark(ctx: SKRSContext2D, y: number): number {
   ctx.save();
-  ctx.fillStyle = COLORS.panel;
-  ctx.fillRect(0, 0, CARD_W, TITLE_BAR_H);
-  ctx.strokeStyle = COLORS.hairline;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, TITLE_BAR_H);
-  ctx.lineTo(CARD_W, TITLE_BAR_H);
-  ctx.stroke();
-
-  drawTrafficLights(ctx, 44, TITLE_BAR_H / 2, {
-    radius: 8,
-    gap: 26,
-    colors: [COLORS.red, COLORS.yellow, COLORS.green],
-  });
-
-  ctx.textBaseline = "middle";
-  ctx.textAlign = "left";
-  ctx.fillStyle = COLORS.textDim;
-  ctx.font = `18px ${FONT_FAMILY.monoRegular}`;
-  ctx.fillText("hacker-house-goa.sh — 82×40", 140, TITLE_BAR_H / 2 + 1);
-
-  ctx.textAlign = "right";
-  ctx.fillStyle = COLORS.amber;
-  ctx.font = `16px ${FONT_FAMILY.monoSemiBold}`;
-  const statusLabel = "LIVE  28–31 OCT 2026";
-  ctx.fillText(statusLabel, CARD_W - 40, TITLE_BAR_H / 2 + 1);
-
-  const dotOffset = ctx.measureText(statusLabel).width + 14;
-  ctx.beginPath();
-  ctx.arc(CARD_W - 40 - dotOffset, TITLE_BAR_H / 2, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-export function drawBootLines(ctx: SKRSContext2D, x: number, startY: number): number {
-  ctx.save();
-  ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
 
-  let y = startY;
-  ctx.fillStyle = COLORS.amber;
-  ctx.font = `700 26px ${FONT_FAMILY.monoBold}`;
-  ctx.fillText("$ ssh builder@hackerhouse.goa", x, y);
+  const hackerFont = `62px ${FONT_FAMILY.display}`;
+  const houseFont = `62px ${FONT_FAMILY.display}`;
+  const devFont = `54px ${FONT_FAMILY.devanagari}`;
 
-  y += 32;
-  ctx.fillStyle = COLORS.green;
-  ctx.font = `16px ${FONT_FAMILY.monoRegular}`;
-  ctx.fillText("connecting to GOA, IN (15.2993°N, 74.1240°E)… ok", x, y);
+  ctx.font = hackerFont;
+  const hackerW = ctx.measureText("HACKER").width;
+  ctx.font = devFont;
+  const devW = ctx.measureText("गोवा").width;
+  ctx.font = houseFont;
+  const houseW = ctx.measureText("HOUSE").width;
 
-  y += 26;
-  ctx.fillText("authenticating builder session… access granted", x, y);
+  const gap = 22;
+  const total = hackerW + gap + devW + gap + houseW;
+  let x = CX - total / 2;
 
+  ctx.textAlign = "left";
+  ctx.fillStyle = COLORS.gold;
+  ctx.font = hackerFont;
+  ctx.fillText("HACKER", x, y);
+  x += hackerW + gap;
+
+  ctx.fillStyle = COLORS.pink;
+  ctx.font = devFont;
+  ctx.fillText("गोवा", x, y);
+  x += devW + gap;
+
+  ctx.fillStyle = COLORS.gold;
+  ctx.font = houseFont;
+  ctx.fillText("HOUSE", x, y);
+
+  drawPalmAccent(ctx, CX - total / 2 - 46, y - 34, 30, COLORS.textDim);
+  drawPalmAccent(ctx, CX + total / 2 + 46, y - 34, 30, COLORS.textDim);
+
+  ctx.restore();
   return y;
 }
 
-export function drawWordmark(ctx: SKRSContext2D, y: number) {
-  const cx = CARD_W / 2;
+export function drawSubline(ctx: SKRSContext2D, y: number) {
   ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-
-  const label = "HACKER_HOUSE // GOA";
-  const size = fitText(ctx, label, CARD_W - 160, FONT_FAMILY.monoBold, 58, 34);
-  ctx.font = `700 ${size}px ${FONT_FAMILY.monoBold}`;
-  ctx.fillStyle = COLORS.textBright;
-  ctx.fillText(label, cx, y);
-
+  const label = "GOA, INDIA  ·  28–31 OCT 2026";
+  const size = fitText(ctx, label, CARD_W - 200, FONT_FAMILY.poppinsSemiBold, 22, 14);
+  ctx.font = `600 ${size}px ${FONT_FAMILY.poppinsSemiBold}`;
+  ctx.fillStyle = COLORS.textDim;
+  ctx.fillText(label, CARD_W / 2, y);
   ctx.restore();
 }
