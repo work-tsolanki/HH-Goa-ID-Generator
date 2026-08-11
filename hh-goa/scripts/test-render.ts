@@ -7,8 +7,8 @@ async function main() {
 
   const scenarios = [
     { file: "test-noURL.png", name: "Priya Nair", stackRole: "Frontend Engineer", socialUrl: "" },
-    { file: "test-garbageURL.png", name: "Riley Costa", stackRole: "DevOps", socialUrl: "not a url" },
-    { file: "test-withURL.png", name: "Jordan Fernandes", stackRole: "AI Engineer", socialUrl: "x.com/jordanbuilds" },
+    { file: "test-withURL.png", name: "Arjun Mehta", stackRole: "AI Engineer", socialUrl: "x.com/arjunbuilds" },
+    { file: "test-long.png", name: "Siddharth Venkataraman", stackRole: "Senior Machine Learning Engineer & Team Lead", socialUrl: "" },
   ];
 
   for (const s of scenarios) {

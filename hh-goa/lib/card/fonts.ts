@@ -10,13 +10,10 @@ export function registerCardFonts() {
   if (registered) return;
 
   const files: Array<[string, string]> = [
-    ["Poppins-Black.ttf", FONT_FAMILY.poppinsBlack],
-    ["Poppins-Bold.ttf", FONT_FAMILY.poppinsBold],
-    ["Poppins-SemiBold.ttf", FONT_FAMILY.poppinsSemiBold],
-    ["Poppins-Medium.ttf", FONT_FAMILY.poppinsMedium],
-    ["Poppins-Regular.ttf", FONT_FAMILY.poppinsRegular],
-    ["ZillaSlab-Bold.ttf", FONT_FAMILY.zillaSlabBold],
-    ["YatraOne-Regular.ttf", FONT_FAMILY.yatraOne],
+    ["IBMPlexMono-Regular.ttf", FONT_FAMILY.monoRegular],
+    ["IBMPlexMono-Medium.ttf", FONT_FAMILY.monoMedium],
+    ["IBMPlexMono-SemiBold.ttf", FONT_FAMILY.monoSemiBold],
+    ["IBMPlexMono-Bold.ttf", FONT_FAMILY.monoBold],
   ];
 
   for (const [file, family] of files) {

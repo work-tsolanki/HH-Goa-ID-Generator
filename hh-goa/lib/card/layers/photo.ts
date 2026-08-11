@@ -1,59 +1,27 @@
 import type { Image, SKRSContext2D } from "@napi-rs/canvas";
 import { COLORS, FONT_FAMILY } from "../theme";
+import { drawScanlines } from "../utils";
 
 export type PhotoFrameLayout = {
-  cx: number;
-  cy: number;
-  outerRadius: number;
-  innerRadius: number;
+  x: number;
+  y: number;
+  size: number;
 };
 
+const BRACKET_LEN = 46;
+const BRACKET_W = 5;
+const INSET = 10;
+
 export function drawPhotoFrame(ctx: SKRSContext2D, photo: Image, layout: PhotoFrameLayout) {
-  const { cx, cy, outerRadius, innerRadius } = layout;
+  const { x, y, size } = layout;
 
-  ctx.save();
-  ctx.fillStyle = "rgba(0,0,0,0.15)";
-  ctx.beginPath();
-  ctx.arc(cx + 6, cy + 10, outerRadius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-
-  // Scalloped rickrack ring: alternating red/white bumps
-  const ringMid = (outerRadius + innerRadius) / 2;
-  const bumpRadius = (outerRadius - innerRadius) / 2 + 2;
-  const circumference = 2 * Math.PI * ringMid;
-  const count = Math.max(24, Math.round(circumference / (bumpRadius * 1.35)));
-
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2;
-    const bx = cx + ringMid * Math.cos(angle);
-    const by = cy + ringMid * Math.sin(angle);
-    ctx.beginPath();
-    ctx.arc(bx, by, bumpRadius, 0, Math.PI * 2);
-    ctx.fillStyle = i % 2 === 0 ? COLORS.red : COLORS.white;
-    ctx.fill();
-  }
-
-  // clean inner/outer edges
-  ctx.strokeStyle = COLORS.gold;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.arc(cx, cy, outerRadius + 1, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(cx, cy, innerRadius - 1, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Photo, center-cropped to cover the inner circle
+  // Center-cropped photo, filling the viewfinder regardless of source aspect ratio.
   ctx.save();
   ctx.beginPath();
-  ctx.arc(cx, cy, innerRadius - 5, 0, Math.PI * 2);
+  ctx.rect(x + INSET, y + INSET, size - INSET * 2, size - INSET * 2);
   ctx.clip();
 
-  const targetSize = (innerRadius - 5) * 2;
-  const targetX = cx - innerRadius + 5;
-  const targetY = cy - innerRadius + 5;
-
+  const targetSize = size - INSET * 2;
   const imgW = photo.width;
   const imgH = photo.height;
   const scale = Math.max(targetSize / imgW, targetSize / imgH);
@@ -62,75 +30,48 @@ export function drawPhotoFrame(ctx: SKRSContext2D, photo: Image, layout: PhotoFr
   const sx = (imgW - sw) / 2;
   const sy = (imgH - sh) / 2;
 
-  ctx.drawImage(photo, sx, sy, sw, sh, targetX, targetY, targetSize, targetSize);
+  ctx.drawImage(photo, sx, sy, sw, sh, x + INSET, y + INSET, targetSize, targetSize);
+
+  // Slight darken + scanlines over the photo so it reads as a camera feed, not a pasted photo.
+  ctx.fillStyle = "rgba(11,13,12,0.18)";
+  ctx.fillRect(x + INSET, y + INSET, targetSize, targetSize);
+  drawScanlines(ctx, x + INSET, y + INSET, targetSize, targetSize, {
+    color: "#000000",
+    gap: 5,
+    opacity: 0.12,
+  });
   ctx.restore();
 
-  ctx.strokeStyle = COLORS.green;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, innerRadius - 5, 0, Math.PI * 2);
-  ctx.stroke();
-}
-
-export function drawStickyNote(ctx: SKRSContext2D, x: number, y: number) {
-  const w = 150;
-  const h = 96;
-  const fold = 20;
-
+  // Reticle corner brackets — the signature shape of this world, replacing a decorative ring.
   ctx.save();
-  ctx.translate(x + w / 2, y + h / 2);
-  ctx.rotate(0.09);
-  ctx.translate(-w / 2, -h / 2);
-
-  ctx.fillStyle = "rgba(0,0,0,0.15)";
-  ctx.beginPath();
-  ctx.moveTo(4, 4);
-  ctx.lineTo(w + 4, 4);
-  ctx.lineTo(w + 4, h + 4);
-  ctx.lineTo(4, h + 4);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = COLORS.yellow;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(w - fold, 0);
-  ctx.lineTo(w, fold);
-  ctx.lineTo(w, h);
-  ctx.lineTo(0, h);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = COLORS.yellowDark;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  ctx.fillStyle = COLORS.yellowDark;
-  ctx.beginPath();
-  ctx.moveTo(w - fold, 0);
-  ctx.lineTo(w, fold);
-  ctx.lineTo(w - fold, fold);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = COLORS.ink;
-  ctx.textAlign = "center";
-  ctx.font = `700 22px ${FONT_FAMILY.poppinsBold}`;
-  ctx.fillText("LET'S", w / 2 - 4, h / 2 - 2);
-  ctx.fillText("BUILD!", w / 2 - 4, h / 2 + 26);
+  ctx.strokeStyle = COLORS.amber;
+  ctx.lineWidth = BRACKET_W;
+  ctx.lineCap = "square";
+  const corners: Array<[number, number, number, number]> = [
+    [x, y, 1, 1],
+    [x + size, y, -1, 1],
+    [x, y + size, 1, -1],
+    [x + size, y + size, -1, -1],
+  ];
+  for (const [cx, cy, dx, dy] of corners) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + BRACKET_LEN * dy);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx + BRACKET_LEN * dx, cy);
+    ctx.stroke();
+  }
   ctx.restore();
 
-  // little spark accents beside the note
+  // CAM_01 // LIVE label, top-left, like a camera app overlay.
   ctx.save();
-  ctx.strokeStyle = COLORS.ink;
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = "round";
-  const sparkX = x + w - 6;
-  const sparkY = y - 6;
+  ctx.fillStyle = COLORS.red;
   ctx.beginPath();
-  ctx.moveTo(sparkX, sparkY);
-  ctx.lineTo(sparkX + 14, sparkY - 10);
-  ctx.moveTo(sparkX + 6, sparkY + 4);
-  ctx.lineTo(sparkX + 22, sparkY + 2);
-  ctx.stroke();
+  ctx.arc(x + 26, y - 22, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = COLORS.textDim;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.font = `15px ${FONT_FAMILY.monoRegular}`;
+  ctx.fillText("CAM_01 // LIVE", x + 40, y - 21);
   ctx.restore();
 }

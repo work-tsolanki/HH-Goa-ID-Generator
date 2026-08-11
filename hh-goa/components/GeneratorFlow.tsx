@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import PalmTree from "./PalmTree";
-import PostcardLogo from "./PostcardLogo";
 import ResultCard from "./ResultCard";
-import StampButton from "./StampButton";
-import SunHorizon from "./SunHorizon";
+import { TerminalButton } from "./TerminalButton";
+import TerminalTitleBar from "./TerminalTitleBar";
 import UploadDropzone from "./UploadDropzone";
-
-const HYPE_URL = "https://x.com/search?q=%23FrameInGoa&src=typed_query&f=live";
 
 type Step = "hero" | "form" | "rendering" | "result";
 
@@ -25,10 +21,12 @@ export type GenerateResponse = {
 };
 
 const STEPS = [
-  { key: "upload", label: "Upload Photo" },
-  { key: "details", label: "Add Details" },
-  { key: "share", label: "Share Pass" },
+  { key: "upload", label: "upload" },
+  { key: "details", label: "details" },
+  { key: "share", label: "share" },
 ] as const;
+
+const HYPE_URL = "https://x.com/search?q=%23FrameInGoa&src=typed_query&f=live";
 
 export default function GeneratorFlow() {
   const [step, setStep] = useState<Step>("hero");
@@ -85,59 +83,55 @@ export default function GeneratorFlow() {
 
   if (step === "hero") {
     return (
-      <section className="relative flex flex-1 flex-col overflow-hidden bg-green">
-        <SunHorizon className="pointer-events-none absolute inset-x-0 bottom-0 z-0 mx-auto w-full max-w-3xl opacity-95" />
-        <PalmTree
-          className="pointer-events-none absolute -bottom-3 left-0 z-0 w-28 sm:w-40 lg:w-56"
-          leafColor="#1f5c41"
+      <section className="scanlines relative flex flex-1 flex-col bg-bg">
+        <TerminalTitleBar
+          filename="hacker-house-goa.sh — visitor session"
+          status="● LIVE"
+          action={
+            <>
+              <a
+                href={HYPE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden text-sm text-text-dim transition-colors hover:text-amber sm:inline"
+              >
+                check_hype
+              </a>
+              <TerminalButton variant="secondary" onClick={() => setStep("form")}>
+                apply
+              </TerminalButton>
+            </>
+          }
         />
-        <PalmTree
-          flip
-          className="pointer-events-none absolute -bottom-3 right-0 z-0 w-28 sm:w-40 lg:w-56"
-          leafColor="#1f5c41"
-        />
 
-        <nav className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-10">
-          <PostcardLogo dark />
-          <div className="flex items-center gap-4 sm:gap-6">
-            <a
-              href={HYPE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden text-sm font-bold uppercase tracking-wide text-cream/80 transition-colors hover:text-gold sm:inline"
-            >
-              Check Hype
-            </a>
-            <StampButton onClick={() => setStep("form")}>Build my card</StampButton>
-          </div>
-        </nav>
-
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-14 pt-4 text-center sm:pb-20">
-          <h1 className="max-w-4xl font-display text-[15vw] font-bold uppercase leading-[0.9] text-gold sm:text-6xl md:text-7xl lg:text-8xl">
-            Hacker{" "}
-            <span className="relative -mx-1 inline-block -translate-y-1 -rotate-3 text-[1.15em] font-devanagari text-pink normal-case drop-shadow-[2px_3px_0_rgba(0,0,0,0.35)] sm:-mx-2 sm:-translate-y-2">
-              गोवा
-            </span>{" "}
-            House
-          </h1>
-
-          <div className="flex w-full max-w-md flex-wrap items-center justify-between gap-2 rounded-xl bg-black/25 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gold sm:text-sm">
-            <span>Goa, India · 28–31 Oct 2026</span>
-            <span className="text-pink">#FrameInGoa</span>
-          </div>
-
-          <p className="max-w-sm text-sm text-cream/80 sm:text-base">
-            Upload a photo, drop your name and stack, and get a shareable
-            builder pass in seconds. No sign-up.
+        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-14 sm:px-10">
+          <p className="text-base text-amber sm:text-lg">
+            <span className="font-semibold">$ ssh</span> builder@hackerhouse.goa
+          </p>
+          <p className="mt-2 text-xs text-green sm:text-sm">
+            connecting to GOA, IN (15.2993°N, 74.1240°E)… ok
+            <br />
+            authenticating builder session… access granted
           </p>
 
-          <button
-            type="button"
-            onClick={() => setStep("form")}
-            className="mt-2 rounded-full bg-pink px-8 py-4 text-lg font-bold text-white shadow-lg shadow-pink/30 transition-transform active:scale-95"
-          >
-            Build my card →
-          </button>
+          <div className="my-8 border-t border-dashed border-hairline" />
+
+          <h1 className="text-3xl font-bold uppercase leading-tight text-text-bright sm:text-5xl">
+            Hacker_House <span className="text-amber">{"// Goa"}</span>
+          </h1>
+          <p className="mt-3 text-sm text-text-dim sm:text-base">Goa, IN &middot; 28&ndash;31 Oct 2026</p>
+
+          <p className="mt-6 max-w-md text-sm text-text-dim sm:text-base">
+            Upload a photo, set your name and stack, and get a terminal-styled builder
+            pass&mdash;rendered server-side, shareable to X. No sign-up.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <TerminalButton onClick={() => setStep("form")}>./build-my-card.sh</TerminalButton>
+            <span className="cursor-blink text-lg text-amber" aria-hidden>
+              _
+            </span>
+          </div>
         </div>
       </section>
     );
@@ -145,9 +139,14 @@ export default function GeneratorFlow() {
 
   if (step === "rendering") {
     return (
-      <section className="flex flex-1 flex-col items-center justify-center gap-4 bg-cream px-6 py-16 text-center">
-        <div className="h-14 w-14 animate-spin rounded-full border-4 border-gold border-t-pink" />
-        <p className="text-lg font-semibold text-green">Stamping your postcard…</p>
+      <section className="scanlines flex flex-1 flex-col items-center justify-center gap-3 bg-bg px-6 py-16 text-center">
+        <p className="text-lg text-amber">$ ./generate.sh</p>
+        <p className="text-sm text-text-dim">
+          compiling builder_pass.png
+          <span className="cursor-blink" aria-hidden>
+            _
+          </span>
+        </p>
       </section>
     );
   }
@@ -157,104 +156,87 @@ export default function GeneratorFlow() {
   }
 
   return (
-    <section className="relative flex flex-1 flex-col bg-cream">
-      <div className="dot-field pointer-events-none absolute inset-0" aria-hidden />
+    <section className="scanlines relative flex flex-1 flex-col bg-bg">
+      <TerminalTitleBar
+        filename="builder-form.sh"
+        status={`step ${STEPS.findIndex((s) => s.key === activeFormStep) + 1}/${STEPS.length}`}
+        action={
+          <button type="button" onClick={() => setStep("hero")} className="text-sm text-text-dim hover:text-amber">
+            cd ..
+          </button>
+        }
+      />
 
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b-4 border-gold bg-green px-5 py-4 sm:px-8">
-        <div className="flex items-center gap-3">
-          <PostcardLogo dark />
-          <div className="hidden text-cream/70 sm:block">
-            <div className="text-sm font-bold uppercase tracking-wide text-cream">HH Goa 2026</div>
-            <div className="text-xs">Builder Pass Generator</div>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setStep("hero")}
-          className="text-sm font-bold text-gold"
-        >
-          ← Home
-        </button>
-      </header>
-
-      <div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
-        <ol className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wide text-green/60 sm:text-sm">
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-6 py-8">
+        <ol className="flex items-center gap-2 text-xs text-text-dim">
           {STEPS.map((s, i) => (
             <li key={s.key} className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-3 py-1 ${
-                  s.key === activeFormStep
-                    ? "bg-pink text-white"
-                    : "bg-white text-green/50"
-                }`}
-              >
-                {s.label}
+              <span className={s.key === activeFormStep ? "font-semibold text-amber" : ""}>
+                [{i + 1}] {s.label}
               </span>
-              {i < STEPS.length - 1 && <span className="text-green/30">·</span>}
+              {i < STEPS.length - 1 && <span className="text-text-faint">&middot;</span>}
             </li>
           ))}
         </ol>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-6 rounded-2xl border border-green/10 bg-white p-5 shadow-lg shadow-green/5 sm:p-6"
-        >
-          <UploadDropzone
-            previewUrl={previewUrl}
-            onFileReady={(file, url) => {
-              setPhotoFile(file);
-              setPreviewUrl(url);
-            }}
-          />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6 rounded-sm border border-hairline bg-panel p-5 sm:p-6">
+          <div>
+            <label className="mb-2 block text-sm text-amber" htmlFor="photo-field">
+              $ upload_photo
+            </label>
+            <UploadDropzone
+              previewUrl={previewUrl}
+              onFileReady={(file, url) => {
+                setPhotoFile(file);
+                setPreviewUrl(url);
+              }}
+            />
+          </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-green">Full name</span>
+            <span className="text-sm text-amber">$ name --set</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={60}
-              placeholder="e.g. Satoshi Nakamoto"
-              className="rounded-xl border border-green/20 bg-cream/40 px-4 py-3 text-base text-foreground outline-none focus:border-pink"
+              placeholder="satoshi_nakamoto"
+              className="border border-hairline bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
               required
             />
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-green">Stack / role</span>
+            <span className="text-sm text-amber">$ role --set</span>
             <input
               value={stackRole}
               onChange={(e) => setStackRole(e.target.value)}
               maxLength={60}
-              placeholder="e.g. Full-Stack / Rust / AI"
-              className="rounded-xl border border-green/20 bg-cream/40 px-4 py-3 text-base text-foreground outline-none focus:border-pink"
+              placeholder="ai-engineer / frontend / founder"
+              className="border border-hairline bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
               required
             />
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-semibold text-green/70">X / social URL (optional)</span>
+            <span className="text-sm text-text-dim">$ social --set (optional)</span>
             <input
               value={socialUrl}
               onChange={(e) => setSocialUrl(e.target.value)}
               maxLength={120}
               placeholder="x.com/yourhandle"
-              className="rounded-xl border border-green/10 bg-cream/20 px-4 py-3 text-base text-foreground outline-none focus:border-pink"
+              className="border border-hairline/50 bg-bg px-4 py-3 text-base text-text-bright outline-none placeholder:text-text-faint focus:border-amber"
             />
           </label>
 
-          {error && <p className="text-sm font-medium text-pink-dark">{error}</p>}
+          {error && <p className="text-sm text-red">error: {error}</p>}
 
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="rounded-full bg-pink px-8 py-4 text-lg font-bold text-white shadow-lg shadow-pink/20 transition-transform disabled:cursor-not-allowed disabled:bg-green/20 disabled:text-green/50 active:scale-95 disabled:active:scale-100"
-          >
-            Generate my card
-          </button>
+          <TerminalButton type="submit" disabled={!canSubmit} className="disabled:cursor-not-allowed disabled:opacity-40">
+            ./generate.sh
+          </TerminalButton>
         </form>
 
-        <p className="text-center text-xs text-green/50">
-          Your card — with your photo — gets a public share link, that&apos;s how sharing to X works.
+        <p className="text-center text-xs text-text-faint">
+          $ echo &quot;your card + photo get a public share link&quot;
         </p>
       </div>
     </section>

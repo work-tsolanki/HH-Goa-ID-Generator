@@ -1,27 +1,19 @@
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import { generateBuilderCode } from "./id";
-import { drawTopDecorations, drawMidDecorations } from "./layers/decorations";
-import { drawBottomRibbon, drawFooter } from "./layers/footer";
-import { CONTENT_PAD, drawFrame } from "./layers/frame";
-import {
-  drawGoaBadge,
-  drawHeadline,
-  drawPostageStamp,
-  drawTopRibbon,
-  drawVerticalMargins,
-} from "./layers/header";
-import { drawTitleBadge, drawLinkBar, drawNamePill } from "./layers/linkAndBadge";
-import { drawPhotoFrame, drawStickyNote } from "./layers/photo";
-import { drawBeachScene, drawSignpost } from "./layers/scene";
-import { CARD_H, CARD_W } from "./theme";
 import { getFlavor } from "./flavor";
 import { registerCardFonts } from "./fonts";
+import { generateBuilderCode } from "./id";
+import { drawClosingPrompt, drawDivider, drawFooter } from "./layers/footer";
+import { CONTENT_PAD, drawFrame } from "./layers/frame";
+import { drawBootLines, drawTitleBar, drawWordmark, TITLE_BAR_H } from "./layers/header";
+import { drawPromptRow } from "./layers/linkAndBadge";
+import { drawPhotoFrame } from "./layers/photo";
+import { CARD_H, CARD_W, COLORS } from "./theme";
 
 export type GenerateCardInput = {
   photo: Buffer;
   name: string;
   stackRole: string;
-  /** The builder's own X/social profile URL, shown on the link bar. */
+  /** The builder's own X/social profile URL, shown as an optional prompt row. */
   socialUrl: string;
   /** This card's own share-page URL, encoded into the QR code. */
   shareUrl: string;
@@ -48,56 +40,92 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
   const ctx = canvas.getContext("2d");
 
   drawFrame(ctx);
-  drawTopDecorations(ctx);
+  drawTitleBar(ctx);
 
-  drawTopRibbon(ctx);
-  drawPostageStamp(ctx, CONTENT_PAD - 8, 44);
-  drawGoaBadge(ctx, CARD_W - CONTENT_PAD - 88, 148, 92);
+  const contentX = CONTENT_PAD;
+  const contentW = CARD_W - CONTENT_PAD * 2;
 
-  drawHeadline(ctx, 300);
+  let cursorY = drawBootLines(ctx, contentX, TITLE_BAR_H + 56);
+  cursorY += 26;
+  drawDivider(ctx, contentX, cursorY, contentW);
 
-  drawVerticalMargins(ctx, CARD_H, CONTENT_PAD + 30, CARD_W - CONTENT_PAD - 20);
+  drawWordmark(ctx, cursorY + 68);
+  cursorY += 68 + 46;
 
-  const photoLayout = { cx: CX, cy: 665, outerRadius: 250, innerRadius: 214 };
-  drawMidDecorations(ctx, photoLayout.cy - photoLayout.outerRadius, photoLayout.cy + photoLayout.outerRadius);
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.fillStyle = COLORS.textDim;
+  ctx.font = "16px \"IBM Plex Mono\"";
+  ctx.fillText("GOA, IN · 28–31 OCT 2026", CX, cursorY);
+  ctx.restore();
+  cursorY += 40;
 
-  drawSignpost(ctx, 226, 545);
-  drawBeachScene(ctx, 872, 500, 268, 340);
-
+  const photoSize = 480;
+  const photoLayout = { x: CX - photoSize / 2, y: cursorY, size: photoSize };
   drawPhotoFrame(ctx, photo, photoLayout);
-  drawStickyNote(ctx, 742, 348);
+  cursorY = photoLayout.y + photoSize + 56;
 
-  let cursorY = photoLayout.cy + photoLayout.outerRadius + 66;
+  const fieldMaxWidth = contentW;
+  cursorY = drawPromptRow(ctx, contentX, cursorY, {
+    prompt: "whoami",
+    response: input.name.trim().toUpperCase(),
+    maxWidth: fieldMaxWidth,
+  });
+  cursorY += 30;
 
-  const namePillH = 62;
-  drawNamePill(ctx, CX, cursorY, 760, namePillH, input.name);
-  cursorY += namePillH + 22;
+  cursorY = drawPromptRow(ctx, contentX, cursorY, {
+    prompt: "role --get",
+    response: flavor.badgeTitle,
+    responseColor: COLORS.amber,
+    maxWidth: fieldMaxWidth,
+    responseSize: 28,
+  });
+  cursorY += 30;
 
-  const url = formatUrl(input.socialUrl);
+  cursorY = drawPromptRow(ctx, contentX, cursorY, {
+    prompt: "class.assign",
+    response: flavor.builderClass,
+    responseColor: COLORS.green,
+    maxWidth: fieldMaxWidth,
+    responseSize: 28,
+  });
+  cursorY += 30;
+
+  cursorY = drawPromptRow(ctx, contentX, cursorY, {
+    prompt: "status.log",
+    response: flavor.tagline,
+    maxWidth: fieldMaxWidth,
+    responseSize: 26,
+  });
+  cursorY += 30;
+
+  const url = formatSocialUrl(input.socialUrl);
   if (url) {
-    const linkBarH = 46;
-    drawLinkBar(ctx, CX, cursorY, 640, linkBarH, url);
-    cursorY += linkBarH + 22;
+    cursorY = drawPromptRow(ctx, contentX, cursorY, {
+      prompt: "social.link",
+      response: url,
+      maxWidth: fieldMaxWidth,
+      promptSize: 18,
+      responseSize: 22,
+    });
+    cursorY += 26;
   }
 
-  const badgeY = cursorY;
-  drawTitleBadge(ctx, CX, badgeY, 62, flavor.badgeTitle);
+  cursorY += 10;
+  drawDivider(ctx, contentX, cursorY, contentW);
+  cursorY += 40;
 
-  const footerTop = badgeY + 62 + 58;
-  const footerBottom = CARD_H - CONTENT_PAD - 96;
+  const footerBottom = CARD_H - CONTENT_PAD - 70;
   await drawFooter(ctx, {
-    top: footerTop,
+    top: cursorY,
     bottom: footerBottom,
-    left: CONTENT_PAD + 10,
-    right: CARD_W - CONTENT_PAD - 10,
-    builderClass: flavor.builderClass,
-    tagline: flavor.tagline,
+    left: contentX,
+    right: contentX + contentW,
     builderCode,
-    name: input.name,
     shareUrl: input.shareUrl,
   });
 
-  drawBottomRibbon(ctx, CARD_H - CONTENT_PAD - 34, "#FRAMEINGOA");
+  drawClosingPrompt(ctx, contentX, CARD_H - CONTENT_PAD - 20, contentX + contentW);
 
   const png = await canvas.encode("png");
 
@@ -114,7 +142,7 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
  * Returns "" when no real link was provided — never fabricates a placeholder
  * onto the card, and never bakes in obvious garbage (e.g. "not a url").
  */
-function formatUrl(raw: string): string {
+function formatSocialUrl(raw: string): string {
   const trimmed = (raw || "").trim().replace(/\s+/g, "");
   if (!trimmed) return "";
   const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
@@ -127,5 +155,5 @@ function formatUrl(raw: string): string {
   }
   if (!host.includes(".")) return "";
 
-  return withProtocol.replace(/\/$/, "").toUpperCase();
+  return withProtocol.replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }

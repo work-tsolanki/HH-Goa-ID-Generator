@@ -2,13 +2,12 @@
 
 import { useCallback, useRef, useState } from "react";
 import { convertHeicIfNeeded } from "@/lib/heic";
-import ScallopRing from "./ScallopRing";
 
 function CameraIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-9 w-9 text-green/70"
+      className="h-9 w-9 text-text-dim"
       fill="none"
       stroke="currentColor"
       strokeWidth={1.6}
@@ -19,6 +18,19 @@ function CameraIcon() {
       <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
       <circle cx="12" cy="13" r="3.5" />
     </svg>
+  );
+}
+
+/** Corner-bracket reticle — the card's own viewfinder motif, reused live around the upload preview. */
+function ViewfinderCorners() {
+  const corner = "absolute h-6 w-6 border-amber";
+  return (
+    <>
+      <span className={`${corner} left-0 top-0 border-l-2 border-t-2`} aria-hidden />
+      <span className={`${corner} right-0 top-0 border-r-2 border-t-2`} aria-hidden />
+      <span className={`${corner} bottom-0 left-0 border-b-2 border-l-2`} aria-hidden />
+      <span className={`${corner} bottom-0 right-0 border-b-2 border-r-2`} aria-hidden />
+    </>
   );
 }
 
@@ -75,34 +87,34 @@ export default function UploadDropzone({ onFileReady, previewUrl }: Props) {
           setDragActive(false);
           void handleFile(e.dataTransfer.files?.[0]);
         }}
-        className={`relative flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-6 text-center transition-colors ${
-          dragActive ? "border-pink bg-pink/5" : "border-green/30 bg-white/60"
+        className={`relative flex w-full flex-col items-center justify-center gap-2 border p-6 text-center transition-colors ${
+          dragActive ? "border-amber bg-amber/5" : "border-hairline bg-bg"
         } ${previewUrl ? "aspect-auto py-4" : "aspect-square"}`}
       >
         {previewUrl ? (
           <div className="relative h-56 w-56">
-            <ScallopRing />
+            <ViewfinderCorners />
             {/* eslint-disable-next-line @next/next/no-img-element -- local blob: object URL, not Next-optimizable */}
             <img
               src={previewUrl}
               alt="Your photo preview"
-              className="absolute inset-[10%] h-[80%] w-[80%] rounded-full object-cover ring-2 ring-gold"
+              className="absolute inset-[10%] h-[80%] w-[80%] object-cover"
             />
           </div>
         ) : (
           <>
             <CameraIcon />
-            <span className="font-semibold text-green">Drop your photo here</span>
-            <span className="text-sm text-green/70">or tap to browse — JPG, PNG, WEBP, HEIC</span>
+            <span className="font-semibold text-text-bright">drop photo here</span>
+            <span className="text-sm text-text-dim">or tap to browse &mdash; jpg, png, webp, heic</span>
           </>
         )}
         {busy && (
-          <span className="absolute inset-0 flex items-center justify-center rounded-2xl bg-cream/80 text-sm font-semibold text-green">
-            Preparing photo…
+          <span className="absolute inset-0 flex items-center justify-center bg-bg/85 text-sm font-semibold text-amber">
+            preparing photo&hellip;
           </span>
         )}
         {previewUrl && !busy && (
-          <span className="text-xs font-medium text-green/70">Tap to choose a different photo</span>
+          <span className="text-xs text-text-dim">tap to choose a different photo</span>
         )}
       </button>
       <input
@@ -112,7 +124,7 @@ export default function UploadDropzone({ onFileReady, previewUrl }: Props) {
         className="hidden"
         onChange={(e) => void handleFile(e.target.files?.[0])}
       />
-      {error && <p className="mt-2 text-sm font-medium text-pink-dark">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red">{error}</p>}
     </div>
   );
 }
