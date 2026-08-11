@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7efdd;
+  --foreground: #1c1c1c;
+
+  --color-cream: #f7efdd;
+  --color-green: #163a2b;
+  --color-green-dark: #0f2b1f;
+  --color-gold: #d7a53d;
+  --color-pink: #e8177d;
+  --color-pink-dark: #c20f68;
+  --color-yellow: #f4c430;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-cream: var(--color-cream);
+  --color-green: var(--color-green);
+  --color-green-dark: var(--color-green-dark);
+  --color-gold: var(--color-gold);
+  --color-pink: var(--color-pink);
+  --color-pink-dark: var(--color-pink-dark);
+  --color-yellow: var(--color-yellow);
+  --font-sans: var(--font-poppins);
+  --font-display: var(--font-zilla-slab);
+  --font-devanagari: var(--font-yatra-one);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+::selection {
+  background: var(--color-pink);
+  color: var(--color-cream);
+}
+
+/* Themed focus ring from the palette, not the browser default blue —
+   applied everywhere so keyboard navigation never breaks the world. */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* The card's own cream paper texture, carried into the surrounding chrome
+   so the task screens read as the same object as the card they produce. */
+.dot-field {
+  background-image: radial-gradient(circle, var(--color-green) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.08;
+}
