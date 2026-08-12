@@ -313,19 +313,19 @@ export default function GeneratorFlow() {
               />
             </div>
             <div className="mx-auto w-full max-w-[1240px] px-4 pt-5 pb-3.5 sm:px-10 sm:pt-8">
-              <div className="animate-badge-float neu neu-lg mx-auto mb-4 flex w-fit flex-col gap-1 bg-forest px-5 py-3.5 sm:px-7 sm:py-5">
-                <h1 className="font-display text-[clamp(24px,5.4vw,58px)] leading-[0.86] tracking-[-0.03em] whitespace-nowrap text-paper uppercase">
+              <div className="animate-badge-float neu neu-lg mx-auto mb-4 flex w-fit flex-col gap-1 bg-forest px-4 py-2.5 sm:px-5 sm:py-3.5">
+                <h1 className="font-display text-[clamp(19px,4.4vw,46px)] leading-[0.86] tracking-[-0.03em] whitespace-nowrap text-paper uppercase">
                   HACKER HOUSE{" "}
                   <span className="font-devanagari text-pink normal-case" style={{ fontSize: "0.85em" }}>
                     गोवा
                   </span>{" "}
                   26
                 </h1>
-                <span className="font-body text-[10px] font-bold tracking-[0.22em] text-paper/60 uppercase sm:text-[12px]">
+                <span className="font-body text-[9px] font-bold tracking-[0.2em] text-paper/60 uppercase sm:text-[11px]">
                   Residency 2026 · Builder Pass
                 </span>
               </div>
-              <p className="font-display text-[clamp(19px,3vw,34px)] leading-[0.95] tracking-[-0.02em] uppercase">
+              <p className="mt-10 font-display text-[clamp(19px,3vw,34px)] leading-[0.95] tracking-[-0.02em] uppercase">
                 Build in Goa, ship from{" "}
                 <span
                   className="text-pink"
