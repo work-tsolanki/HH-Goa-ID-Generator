@@ -319,8 +319,8 @@ export default function GeneratorFlow() {
                 // before); the top crop comes only from the position anchor
                 // plus the mask fade below.
                 backgroundPosition: "center bottom",
-                maskImage: "linear-gradient(to bottom, transparent 20%, #000 58%, #000 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, #000 72%, #000 100%)",
+                maskImage: "linear-gradient(to bottom, transparent 22%, #000 52%, #000 100%)",
+                WebkitMaskImage: "linear-gradient(to bottom, transparent 22%, #000 52%, #000 100%)",
               }}
             />
           </section>
