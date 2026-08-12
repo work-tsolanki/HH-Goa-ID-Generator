@@ -16,6 +16,7 @@ export default function NavHeader({
   const [hypeOpen, setHypeOpen] = useState(false);
   const [muted, setMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isLanding = ctaLabel === "CREATE";
 
   useEffect(() => {
     if (!hypeOpen) return;
@@ -50,16 +51,26 @@ export default function NavHeader({
           <Logo className="text-paper" />
         </button>
         <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+          {/* On phone there's only room for one right-side action. The
+              landing step already has its own "Create My Pass" button in
+              the hero, so the header CTA there is redundant — swap it for
+              Check Hype, which was otherwise unreachable on mobile
+              (hidden below sm). "Start Over" has no such duplicate, so it
+              keeps the slot on the build/result steps. */}
           <button
             type="button"
             onClick={openHype}
-            className="neu neu-btn hidden font-display px-4.5 py-3.5 text-[13px] tracking-[0.04em] text-ink uppercase whitespace-nowrap bg-paper hover:bg-gold sm:inline-flex sm:items-center"
+            className={`neu neu-btn font-display px-4.5 py-3.5 text-[13px] tracking-[0.04em] text-ink uppercase whitespace-nowrap bg-paper hover:bg-gold sm:inline-flex sm:items-center ${
+              isLanding ? "inline-flex items-center" : "hidden"
+            }`}
           >
             Check Hype
           </button>
-          <Button tone="gold" onClick={onCtaClick} className="whitespace-nowrap">
-            {ctaLabel}
-          </Button>
+          <span className={isLanding ? "hidden sm:inline-flex" : "inline-flex"}>
+            <Button tone="gold" onClick={onCtaClick} className="whitespace-nowrap">
+              {ctaLabel}
+            </Button>
+          </span>
         </div>
       </header>
 
