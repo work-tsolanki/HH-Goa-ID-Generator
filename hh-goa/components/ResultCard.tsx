@@ -25,28 +25,48 @@ export default function ResultCard({
   const shareHost = result.shareUrl.replace(/^https?:\/\//, "");
 
   return (
-    <main className="animate-pop-in relative z-1 flex flex-1 flex-col items-center gap-7 px-4 pt-6.5 pb-24 sm:px-10 sm:pt-13">
-      <div className="animate-reveal relative w-full max-w-[410px]">
-        {PARTICLES.map((p, i) => (
-          <span
-            key={i}
-            aria-hidden
-            className={`animate-bob pointer-events-none absolute z-3 text-[26px] ${p.style}`}
-            style={{ animationDelay: p.delay }}
-          >
-            {p.icon}
+    <main className="animate-pop-in relative z-1 flex flex-1 flex-col items-center gap-7 px-4 pt-2 pb-24 sm:px-10 sm:pt-4">
+      {/* eslint-disable-next-line react/no-unknown-property -- plain CSS injection, no styled-jsx dependency */}
+      <style>{`
+        @keyframes lanyardSwing {
+          0%, 100% { transform: rotate(-2.6deg); }
+          50% { transform: rotate(2.6deg); }
+        }
+        .lanyard-swing {
+          transform-origin: top center;
+          animation: lanyardSwing 4.2s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="relative w-full max-w-[460px]" style={{ paddingTop: 14 }}>
+        {/* The lanyard is baked into result.imageUrl itself now (the
+            template PNG already includes the strap) — this only adds the
+            swinging motion on top of the complete, already-rendered card. */}
+        <div className="lanyard-swing animate-reveal relative">
+          {PARTICLES.map((p, i) => (
+            <span
+              key={i}
+              aria-hidden
+              className={`animate-bob pointer-events-none absolute z-3 text-[26px] ${p.style}`}
+              style={{ animationDelay: p.delay }}
+            >
+              {p.icon}
+            </span>
+          ))}
+          <span className="neu font-display absolute bottom-[90%] left-[-18px] z-4 mb-1 bg-pink px-4 py-3.5 text-[15px] text-paper">
+            PASS READY ✓
           </span>
-        ))}
-        <span className="neu font-display absolute bottom-full left-[-18px] z-4 mb-3.5 bg-pink px-4 py-3.5 text-[15px] text-paper">
-          PASS READY ✓
-        </span>
-        <div className="neu overflow-hidden bg-[#F8EFDC]" style={{ boxShadow: "14px 14px 0 var(--color-ink)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- remote Blob-hosted PNG, not a Next-optimizable local asset */}
-          <img
-            src={result.imageUrl}
-            alt={`${result.name}'s Hacker House Goa 2026 builder pass`}
-            className="block w-full"
-          />
+          <div
+            className="overflow-hidden rounded-[18px]"
+            style={{ filter: "drop-shadow(0 18px 30px rgba(11,51,37,.3))" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- remote Blob-hosted PNG, not a Next-optimizable local asset */}
+            <img
+              src={result.imageUrl}
+              alt={`${result.name}'s Hacker House Goa 2026 builder pass`}
+              className="block w-full"
+            />
+          </div>
         </div>
       </div>
 

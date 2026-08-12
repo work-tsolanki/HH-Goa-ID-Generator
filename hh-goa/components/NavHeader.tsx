@@ -91,7 +91,6 @@ export default function NavHeader({
               <video
                 ref={videoRef}
                 src="/frame-generator/prehype.mp4"
-                controls
                 autoPlay
                 muted={muted}
                 playsInline

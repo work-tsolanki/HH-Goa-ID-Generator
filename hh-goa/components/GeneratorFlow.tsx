@@ -2,10 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { convertHeicIfNeeded } from "@/lib/heic";
+import { TEMPLATE_FIELDS } from "@/lib/card/theme";
 import { Button } from "./Button";
 import Footer from "./Footer";
 import NavHeader from "./NavHeader";
 import ResultCard from "./ResultCard";
+
+// The crop box mirrors the card's own photo slot aspect ratio, so the framing
+// the user sees while cropping is the framing that actually lands on the
+// card — not a square that then gets cover-fit into a wider rectangle.
+const PHOTO_ASPECT = TEMPLATE_FIELDS.photo.w / TEMPLATE_FIELDS.photo.h;
+
+// Below 1 the photo no longer fills the frame edge-to-edge (letterboxed on
+// the shorter side instead) — lets a smaller source photo sit fully inside
+// the crop without being force-cropped up to cover it.
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 3;
 
 type Step = "landing" | "build" | "result";
 
@@ -31,7 +43,7 @@ const PRESETS = [
 const PREVIEW_DEBOUNCE_MS = 180;
 const CROP_DEBOUNCE_MS = 200;
 
-type Metrics = { v: number; w: number; h: number; x: number; y: number };
+type Metrics = { vw: number; vh: number; w: number; h: number; x: number; y: number };
 
 function inputSignature(name: string, stack: string, handle: string, photoVersion: number) {
   return `${name.trim()}|${stack.trim()}|${handle.trim()}|${photoVersion}`;
@@ -64,7 +76,7 @@ export default function GeneratorFlow() {
   const reqIdRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  const [viewSize, setViewSize] = useState(324);
+  const [viewSize, setViewSize] = useState({ w: 324, h: 324 / PHOTO_ASPECT });
 
   const cropRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -81,7 +93,11 @@ export default function GeneratorFlow() {
   useEffect(() => {
     const el = cropRef.current;
     if (!el) return;
-    const update = () => setViewSize(el.clientWidth || 324);
+    const update = () =>
+      setViewSize({
+        w: el.clientWidth || 324,
+        h: el.clientHeight || 324 / PHOTO_ASPECT,
+      });
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
@@ -133,15 +149,15 @@ export default function GeneratorFlow() {
   }, []);
 
   function metrics(nextZoom?: number, nextOx?: number, nextOy?: number): Metrics {
-    const v = viewSize;
-    const s = Math.max(v / nat.w, v / nat.h) * (nextZoom ?? zoom);
+    const { w: vw, h: vh } = viewSize;
+    const s = Math.max(vw / nat.w, vh / nat.h) * (nextZoom ?? zoom);
     const w = nat.w * s;
     const h = nat.h * s;
-    const mx = Math.max(0, (w - v) / 2);
-    const my = Math.max(0, (h - v) / 2);
+    const mx = Math.max(0, (w - vw) / 2);
+    const my = Math.max(0, (h - vh) / 2);
     const x = Math.min(mx, Math.max(-mx, nextOx ?? offset.x));
     const y = Math.min(my, Math.max(-my, nextOy ?? offset.y));
-    return { v, w, h, x, y };
+    return { vw, vh, w, h, x, y };
   }
 
   function setRawState(url: string) {
@@ -185,18 +201,19 @@ export default function GeneratorFlow() {
   function commitCrop() {
     const img = imgRef.current;
     if (!img || !cropRef.current) return;
-    const { v, w, h, x, y } = metrics();
-    const OUT = 900;
-    const f = OUT / v;
+    const { vw, vh, w, h, x, y } = metrics();
+    const OUT_W = 1200;
+    const OUT_H = Math.round(OUT_W / PHOTO_ASPECT);
+    const f = OUT_W / vw;
     const canvas = document.createElement("canvas");
-    canvas.width = OUT;
-    canvas.height = OUT;
+    canvas.width = OUT_W;
+    canvas.height = OUT_H;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "#101010";
-    ctx.fillRect(0, 0, OUT, OUT);
+    ctx.fillRect(0, 0, OUT_W, OUT_H);
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(img, ((v - w) / 2 + x) * f, ((v - h) / 2 + y) * f, w * f, h * f);
+    ctx.drawImage(img, ((vw - w) / 2 + x) * f, ((vh - h) / 2 + y) * f, w * f, h * f);
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -439,17 +456,20 @@ export default function GeneratorFlow() {
                   hasPhoto
                     ? (e) => {
                         e.preventDefault();
-                        const z = Math.min(3, Math.max(1, zoom - e.deltaY * 0.0016));
+                        const z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom - e.deltaY * 0.0016));
                         const m = metrics(z, offset.x, offset.y);
                         setZoom(z);
                         setOffset({ x: m.x, y: m.y });
                       }
                     : undefined
                 }
-                className={`relative mx-auto aspect-square w-full max-w-[330px] overflow-hidden border-[3px] border-ink select-none ${
+                className={`relative mx-auto w-full max-w-[330px] overflow-hidden border-[3px] border-ink select-none ${
                   hasPhoto ? "cursor-grab touch-none" : "cursor-pointer"
                 }`}
-                style={{ background: hasPhoto ? "#101010" : dragActive ? "#FEE101" : "#FFFDF6" }}
+                style={{
+                  aspectRatio: PHOTO_ASPECT,
+                  background: hasPhoto ? "#101010" : dragActive ? "#FEE101" : "#FFFDF6",
+                }}
               >
                 {hasPhoto &&
                   (() => {
@@ -460,7 +480,7 @@ export default function GeneratorFlow() {
                         style={{
                           backgroundImage: `url(${raw})`,
                           backgroundSize: `${m.w.toFixed(1)}px ${m.h.toFixed(1)}px`,
-                          backgroundPosition: `${((m.v - m.w) / 2 + m.x).toFixed(1)}px ${((m.v - m.h) / 2 + m.y).toFixed(1)}px`,
+                          backgroundPosition: `${((m.vw - m.w) / 2 + m.x).toFixed(1)}px ${((m.vh - m.h) / 2 + m.y).toFixed(1)}px`,
                         }}
                       />
                     );
@@ -502,8 +522,8 @@ export default function GeneratorFlow() {
                     <span className="font-display text-[13px]">−</span>
                     <input
                       type="range"
-                      min="1"
-                      max="3"
+                      min={MIN_ZOOM}
+                      max={MAX_ZOOM}
                       step="0.01"
                       value={zoom}
                       onChange={(e) => {

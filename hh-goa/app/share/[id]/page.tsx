@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { LinkButton } from "@/components/Button";
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
+import { CARD_H, CARD_W } from "@/lib/card/theme";
 import { getCard } from "@/lib/storage";
 import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: card.imageUrl, width: 1300, height: 1630 }],
+      images: [{ url: card.imageUrl, width: CARD_W, height: CARD_H }],
       type: "website",
     },
     twitter: {
