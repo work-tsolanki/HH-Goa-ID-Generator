@@ -75,6 +75,11 @@ export default function ResultCard({
         </Button>
       </div>
 
+      <span className="font-body max-w-sm text-center text-[12px] font-semibold opacity-70">
+        X takes a few seconds to load your pass image the first time — wait for the preview card to
+        appear in the compose box before you hit Post.
+      </span>
+
       <span className="font-body text-[11px] font-bold tracking-[0.22em] opacity-60">
         {result.builderCode} · SHARE PAGE: {shareHost}
       </span>

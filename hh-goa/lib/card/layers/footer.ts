@@ -74,9 +74,9 @@ export async function drawVerifyRow(
   ctx.fillStyle = COLORS.ink;
   ctx.fillText("SCAN TO VALIDATE PASS", barsX, barsTop + barsH + 26, barsW);
 
-  ctx.font = `500 17px ${FONT_FAMILY.body}`;
-  ctx.fillStyle = "rgba(11,51,37,.55)";
-  ctx.fillText(handleUrl, barsX, barsTop + barsH + 48, barsW);
+  ctx.font = `800 19px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = COLORS.ink;
+  ctx.fillText(handleUrl, barsX, barsTop + barsH + 49, barsW);
   ctx.restore();
 }
 
