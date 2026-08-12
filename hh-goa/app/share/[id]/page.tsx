@@ -84,6 +84,11 @@ export default async function SharePage({ params }: Params) {
             Build your own card
           </Link>
         </div>
+
+        <p className="neu border-gold! max-w-sm bg-paper px-4 py-3 text-center font-body text-[13px] font-semibold text-ink">
+          ⏱ X takes a few seconds to load your pass image the first time — wait for the preview card to
+          appear in the compose box before you hit Post, or it&rsquo;ll go out as a bare link.
+        </p>
       </main>
 
       <Footer />

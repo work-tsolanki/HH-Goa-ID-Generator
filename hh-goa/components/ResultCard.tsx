@@ -88,10 +88,10 @@ export default function ResultCard({
         </Button>
       </div>
 
-      <span className="font-body max-w-sm text-center text-[12px] font-semibold opacity-70">
-        X takes a few seconds to load your pass image the first time — wait for the preview card to
-        appear in the compose box before you hit Post.
-      </span>
+      <p className="neu border-gold! max-w-sm bg-paper px-4 py-3 text-center font-body text-[13px] font-semibold text-ink">
+        ⏱ X takes a few seconds to load your pass image the first time — wait for the preview card to
+        appear in the compose box before you hit Post, or it&rsquo;ll go out as a bare link.
+      </p>
 
       <span className="font-body text-[11px] font-bold tracking-[0.22em] opacity-60">
         {result.builderCode} · SHARE PAGE: {shareHost}
