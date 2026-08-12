@@ -6,22 +6,15 @@ export type TweetCardFacts = {
 };
 
 /**
- * Share copy for X. Lines mirror the announcement-post shape builders
- * actually use for these pass generators (emoji header, identity line,
- * flavor line, ID line, CTA, hashtags) — every value is real data pulled
- * from the generated card, nothing invented.
+ * Share copy for X — lowercase, conversational tone. Every value is real
+ * data pulled from the generated card, nothing invented.
  */
-export function buildTweetText({ name, badgeTitle, builderClass, builderCode }: TweetCardFacts): string {
+export function buildTweetText({ name, badgeTitle, builderClass }: TweetCardFacts): string {
   return [
-    "🌴 Just built my Hacker House Goa 2026 builder pass!",
+    `apparently i'm a "${builderClass}" now`,
+    `${name} · ${badgeTitle} · goa 2026`,
     "",
-    `👤 ${name} · ${badgeTitle}`,
-    `💻 ${builderClass}`,
-    `🪪 ${builderCode}`,
-    "",
-    "See you 28–31 Oct in Goa 🇮🇳",
-    "Build your own pass 👇",
-    "",
+    "28–31 oct. build in goa, ship from paradise.",
     "#FrameInGoa #HackerHouseGoa @247pmstudio",
   ].join("\n");
 }
