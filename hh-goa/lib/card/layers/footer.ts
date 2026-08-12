@@ -1,101 +1,100 @@
 import { loadImage, type SKRSContext2D } from "@napi-rs/canvas";
-import bwipjs from "bwip-js/node";
 import QRCode from "qrcode";
-import { COLORS, FONT_FAMILY } from "../theme";
-import { drawRule, fitText } from "../utils";
+import { CARD_H, CARD_W, COLORS, FONT_FAMILY } from "../theme";
 
-const BEACH_BAG = ["COCONUT", "VS CODE", "LO-FI BEATS"];
+const BOTTOM_BAR_H = 73;
 
-export function drawBeachBagRow(ctx: SKRSContext2D, cx: number, y: number) {
-  ctx.save();
-  ctx.font = `600 15px ${FONT_FAMILY.poppinsSemiBold}`;
-  const dotGap = 22;
-  const widths = BEACH_BAG.map((w) => ctx.measureText(w).width);
-  const total = widths.reduce((a, b) => a + b, 0) + dotGap * (BEACH_BAG.length - 1);
-
-  let x = cx - total / 2;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  BEACH_BAG.forEach((label, i) => {
-    ctx.fillStyle = COLORS.textDim;
-    ctx.fillText(label, x, y);
-    x += widths[i];
-    if (i < BEACH_BAG.length - 1) {
-      x += dotGap / 2;
-      ctx.save();
-      ctx.fillStyle = COLORS.goldDim;
-      ctx.beginPath();
-      ctx.arc(x, y - 5, 2.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-      x += dotGap / 2;
-    }
-  });
-  ctx.restore();
+function hashString(input: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
 }
 
-export async function drawFooter(
-  ctx: SKRSContext2D,
-  opts: { top: number; left: number; right: number; builderCode: string; shareUrl: string },
-) {
-  const { top, left, right, builderCode, shareUrl } = opts;
-  const colGap = 48;
-  const colW = (right - left - colGap) / 2;
-  const qrX = left;
-  const idX = left + colW + colGap;
+/** A deterministic decorative bar pattern, seeded from the builder id + stack — not a scannable barcode. */
+function buildBars(seed: number): Array<{ w: number; o: number }> {
+  const bars: Array<{ w: number; o: number }> = [];
+  for (let i = 0; i < 22; i++) {
+    const v = Math.abs((seed >> (i % 24)) ^ (i * 2654435761));
+    bars.push({ w: (0.45 + (v % 3) * 0.5) * 13, o: v % 5 === 0 ? 0.4 : 1 });
+  }
+  return bars;
+}
 
-  const qrSize = 128;
-  const qrBuffer = await QRCode.toBuffer(shareUrl, {
+export async function drawVerifyRow(
+  ctx: SKRSContext2D,
+  opts: { x: number; y: number; right: number; builderId: string; stack: string; handleUrl: string },
+) {
+  const { x, y, right, builderId, stack, handleUrl } = opts;
+  const qrSize = 162;
+
+  const qrBuffer = await QRCode.toBuffer(handleUrl.startsWith("http") ? handleUrl : `https://${handleUrl}`, {
     type: "png",
     margin: 0,
-    width: qrSize,
-    color: { dark: "#0d3b28ff", light: "#f4f1eaff" },
+    width: qrSize - 13,
+    color: { dark: "#0b3325ff", light: "#f3e7ceff" },
   });
   const qrImg = await loadImage(qrBuffer);
-  ctx.drawImage(qrImg, qrX, top, qrSize, qrSize);
+
   ctx.save();
-  ctx.textAlign = "left";
-  ctx.font = `600 14px ${FONT_FAMILY.poppinsSemiBold}`;
-  ctx.fillStyle = COLORS.textDim;
-  ctx.fillText("SCAN TO BUILD YOURS", qrX, top + qrSize + 28);
+  ctx.strokeStyle = COLORS.ink;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(x, y, qrSize, qrSize);
+  ctx.fillStyle = COLORS.cream;
+  ctx.fillRect(x + 4, y + 4, qrSize - 8, qrSize - 8);
+  ctx.drawImage(qrImg, x + 6.5, y + 6.5, qrSize - 13, qrSize - 13);
+  ctx.restore();
+
+  const barsX = x + qrSize + 39;
+  const barsW = right - barsX;
+  const barsH = 57;
+  const bars = buildBars(hashString(builderId + stack));
+  const totalBarW = bars.reduce((a, b) => a + b.w, 0) + 5.5 * (bars.length - 1);
+  const scale = totalBarW > barsW ? barsW / totalBarW : 1;
+
+  ctx.save();
+  let bx = barsX;
+  for (const bar of bars) {
+    const w = bar.w * scale;
+    ctx.fillStyle = COLORS.ink;
+    ctx.globalAlpha = bar.o;
+    ctx.fillRect(bx, y, w, barsH);
+    bx += w + 5.5 * scale;
+  }
   ctx.restore();
 
   ctx.save();
   ctx.textAlign = "left";
-  ctx.fillStyle = COLORS.textDim;
-  ctx.font = `600 14px ${FONT_FAMILY.poppinsSemiBold}`;
-  ctx.fillText("BUILDER ID", idX, top + 20);
-  const idSize = fitText(ctx, `#${builderCode}`, colW, FONT_FAMILY.poppinsBold, 24, 15);
-  ctx.fillStyle = COLORS.gold;
-  ctx.font = `700 ${idSize}px ${FONT_FAMILY.poppinsBold}`;
-  ctx.fillText(`#${builderCode}`, idX, top + 52);
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `500 18px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(11,51,37,.6)";
+  const label = `SCAN TO VERIFY · ${handleUrl}`;
+  ctx.fillText(label, barsX, y + barsH + 26, barsW);
   ctx.restore();
-
-  const barcodeBuffer = await bwipjs.toBuffer({
-    bcid: "code128",
-    text: builderCode.replace(/[^A-Za-z0-9-]/g, ""),
-    scale: 2,
-    height: 9,
-    includetext: false,
-    backgroundcolor: "F4F1EA",
-    paddingwidth: 2,
-    paddingheight: 2,
-  });
-  const barcodeImg = await loadImage(barcodeBuffer);
-  const bw = colW;
-  const bh = (bw / barcodeImg.width) * barcodeImg.height;
-  ctx.drawImage(barcodeImg, idX, top + 72, bw, bh);
 }
 
-export function drawClosingRule(ctx: SKRSContext2D, x: number, y: number, w: number) {
-  drawRule(ctx, x, y, w, COLORS.goldDim);
-}
-
-export function drawHashtag(ctx: SKRSContext2D, cx: number, y: number) {
+export function drawBottomBar(ctx: SKRSContext2D) {
+  const top = CARD_H - BOTTOM_BAR_H;
   ctx.save();
-  ctx.textAlign = "center";
-  ctx.font = `700 24px ${FONT_FAMILY.poppinsBold}`;
+  ctx.fillStyle = COLORS.forestMid;
+  ctx.fillRect(0, top, CARD_W, BOTTOM_BAR_H);
+
+  const padX = 65;
+  const midY = top + BOTTOM_BAR_H / 2 + 1;
+
+  ctx.textBaseline = "middle";
+  ctx.font = `700 22px ${FONT_FAMILY.body}`;
   ctx.fillStyle = COLORS.gold;
-  ctx.fillText("#FRAMEINGOA", cx, y);
+  ctx.textAlign = "left";
+  ctx.fillText("#FRAMEINGOA", padX, midY);
+
+  ctx.font = `500 19px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(243,231,206,.6)";
+  ctx.textAlign = "right";
+  ctx.fillText("2:47 pm STUDIO", CARD_W - padX, midY);
   ctx.restore();
 }
+
+export { BOTTOM_BAR_H };

@@ -1,27 +1,36 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from "react";
 
-const base = "inline-flex items-center justify-center font-semibold transition-colors";
+const base = "neu neu-btn inline-flex items-center justify-center gap-2.5 font-display uppercase";
 
-const variants = {
-  primary: "bg-gold text-green px-7 py-3.5 text-base rounded hover:brightness-105",
-  secondary: "border border-gold text-gold px-7 py-3 text-sm rounded hover:bg-gold/10",
-  ghost: "text-text-dim px-1 py-2 text-sm hover:text-gold",
+const tones = {
+  paper: "bg-paper text-ink",
+  pink: "bg-pink text-paper",
+  gold: "bg-gold text-ink",
+  forest: "bg-forest text-paper",
 } as const;
 
-type Variant = keyof typeof variants;
+const sizes = {
+  md: "px-5 py-3.5 text-[13px] tracking-[0.02em]",
+  lg: "px-7 py-5 text-[17px] tracking-[0.02em]",
+} as const;
+
+type Tone = keyof typeof tones;
+type Size = keyof typeof sizes;
 
 export function Button({
-  variant = "primary",
+  tone = "paper",
+  size = "md",
   className = "",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
-  return <button {...props} className={`${base} ${variants[variant]} ${className}`} />;
+}: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone; size?: Size }) {
+  return <button {...props} className={`${base} ${tones[tone]} ${sizes[size]} ${className}`} />;
 }
 
 export function LinkButton({
-  variant = "primary",
+  tone = "paper",
+  size = "md",
   className = "",
   ...props
-}: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: Variant }) {
-  return <a {...props} className={`${base} ${variants[variant]} ${className}`} />;
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { tone?: Tone; size?: Size }) {
+  return <a {...props} className={`${base} ${tones[tone]} ${sizes[size]} ${className}`} />;
 }

@@ -2,12 +2,11 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { getFlavor } from "./flavor";
 import { registerCardFonts } from "./fonts";
 import { generateBuilderCode } from "./id";
-import { drawBeachBagRow, drawClosingRule, drawFooter, drawHashtag } from "./layers/footer";
-import { CONTENT_PAD, drawFrame } from "./layers/frame";
-import { drawSubline, drawWordmark } from "./layers/header";
-import { drawLabelValue, drawName, drawSocialLink } from "./layers/linkAndBadge";
-import { drawPhotoFrame } from "./layers/photo";
-import { CARD_H, CARD_W, COLORS } from "./theme";
+import { clipFrame, CONTENT_PAD, drawFrame, HEADER_H } from "./layers/frame";
+import { drawBottomBar, drawVerifyRow, BOTTOM_BAR_H } from "./layers/footer";
+import { drawHeader } from "./layers/header";
+import { drawIdentityGrid, drawName, drawStackLine } from "./layers/identity";
+import { CARD_H, CARD_W } from "./theme";
 import { drawRule } from "./utils";
 
 export type GenerateCardInput = {
@@ -28,8 +27,6 @@ export type GenerateCardResult = {
   badgeTitle: string;
 };
 
-const CX = CARD_W / 2;
-
 export async function generateCard(input: GenerateCardInput): Promise<GenerateCardResult> {
   registerCardFonts();
 
@@ -41,61 +38,39 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
   const ctx = canvas.getContext("2d");
 
   drawFrame(ctx);
+  ctx.save();
+  clipFrame(ctx);
+
+  drawHeader(ctx, photo, builderCode);
 
   const contentX = CONTENT_PAD;
-  const contentW = CARD_W - CONTENT_PAD * 2;
+  const contentRight = CARD_W - CONTENT_PAD;
+  const contentW = contentRight - contentX;
+  const bodyTop = HEADER_H + 34;
 
-  drawWordmark(ctx, CONTENT_PAD + 66);
-  drawSubline(ctx, CONTENT_PAD + 112);
+  let cursorY = bodyTop + 95;
+  cursorY = drawName(ctx, contentX, cursorY, input.name.trim(), contentW);
+  cursorY = drawStackLine(ctx, contentX, cursorY + 45, flavor.badgeTitle);
 
-  let cursorY = CONTENT_PAD + 150;
-  drawRule(ctx, CX - 60, cursorY, 120, COLORS.goldDim);
-  cursorY += 46;
+  const ruleY = cursorY + 58;
+  drawRule(ctx, contentX, ruleY, contentW, "rgba(11,51,37,.28)", 2);
 
-  const photoW = 520;
-  const photoH = 560;
-  drawPhotoFrame(ctx, photo, { x: CX - photoW / 2, y: cursorY, w: photoW, h: photoH });
-  cursorY += photoH + 64;
+  drawIdentityGrid(ctx, contentX, ruleY + 55, contentW, flavor.builderClass, flavor.tagline);
 
-  cursorY = drawName(ctx, CX, cursorY, input.name.trim(), contentW - 40) + 60;
-  cursorY = drawLabelValue(ctx, CX, cursorY, "Stack / Role", flavor.badgeTitle, {
-    valueColor: COLORS.gold,
-    maxWidth: contentW - 40,
-  }) + 46;
-  cursorY = drawLabelValue(ctx, CX, cursorY, "Builder Class", flavor.builderClass, {
-    maxWidth: contentW - 40,
-  }) + 46;
-  cursorY = drawLabelValue(ctx, CX, cursorY, "Currently Shipping", flavor.tagline, {
-    maxWidth: contentW - 40,
-  }) + 20;
-
-  const url = formatSocialUrl(input.socialUrl);
-  if (url) {
-    drawSocialLink(ctx, CX, cursorY + 36, url, contentW - 40);
-  }
-
-  // The footer block is bottom-anchored at fixed offsets rather than
-  // continuing the flowing cursor, so its position never depends on
-  // whether the optional social-link row was drawn above it.
-  const hashtagY = CARD_H - CONTENT_PAD - 14;
-  const closingRuleY = hashtagY - 40;
-  const footerTop = closingRuleY - 40 - 156;
-  const beachBagY = footerTop - 40;
-  const rule2Y = beachBagY - 40;
-
-  drawRule(ctx, CX - 60, rule2Y, 120, COLORS.goldDim);
-  drawBeachBagRow(ctx, CX, beachBagY);
-
-  await drawFooter(ctx, {
-    top: footerTop,
-    left: contentX,
-    right: contentX + contentW,
-    builderCode,
-    shareUrl: input.shareUrl,
+  const verifyTop = CARD_H - BOTTOM_BAR_H - 31 - 162;
+  const handleUrl = formatHandleUrl(input.socialUrl, input.shareUrl);
+  await drawVerifyRow(ctx, {
+    x: contentX,
+    y: verifyTop,
+    right: contentRight,
+    builderId: builderCode,
+    stack: flavor.badgeTitle,
+    handleUrl,
   });
 
-  drawClosingRule(ctx, contentX, closingRuleY, contentW);
-  drawHashtag(ctx, CX, hashtagY);
+  ctx.restore(); // end clipFrame
+
+  drawBottomBar(ctx);
 
   const png = await canvas.encode("png");
 
@@ -109,21 +84,25 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
 }
 
 /**
- * Returns "" when no real link was provided — never fabricates a placeholder
- * onto the card, and never bakes in obvious garbage (e.g. "not a url").
+ * "x.com/handle" when a real handle/URL was given, otherwise the card's own
+ * share-page host — never a fabricated placeholder.
  */
-function formatSocialUrl(raw: string): string {
+function formatHandleUrl(raw: string, shareUrl: string): string {
   const trimmed = (raw || "").trim().replace(/\s+/g, "");
-  if (!trimmed) return "";
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-
-  let host: string;
-  try {
-    host = new URL(withProtocol).hostname;
-  } catch {
-    return "";
+  if (trimmed) {
+    const bareHandle = trimmed.replace(/^@/, "");
+    if (/^[a-zA-Z0-9_]{1,30}$/.test(bareHandle)) {
+      return `x.com/${bareHandle}`;
+    }
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    try {
+      const host = new URL(withProtocol).hostname;
+      if (host.includes(".")) {
+        return withProtocol.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+      }
+    } catch {
+      // falls through to shareUrl below
+    }
   }
-  if (!host.includes(".")) return "";
-
-  return withProtocol.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  return shareUrl.replace(/^https?:\/\//i, "");
 }

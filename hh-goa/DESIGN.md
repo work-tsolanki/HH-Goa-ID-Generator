@@ -1,164 +1,186 @@
 ---
 name: HH Goa 2026 Frame Generator
-description: A minimalist, hhgoa.com-palette builder pass generator for Hacker House Goa 2026
+description: A neubrutalist festival-pass builder for Hacker House Goa 2026
 colors:
-  green: "#0d3b28"
-  green-deep: "#092c1d"
-  cream: "#f4f1ea"
-  gold: "#f4c430"
-  gold-dim: "#a9861f"
-  pink: "#ec1e79"
-  text-dim: "#9db3a4"
+  paper: "#fff3d6"
+  paper-deep: "#fbf1dc"
+  ink: "#101010"
+  forest: "#0b6839"
+  forest-deep: "#063d20"
+  gold: "#fee101"
+  pink: "#ff0080"
+  cream: "#f3e7ce"
 typography:
   display:
-    fontFamily: "Abril Fatface, Georgia, serif"
-    fontSize: "clamp(2.25rem, 7vw, 3.75rem)"
+    fontFamily: "Archivo Black, sans-serif"
     fontWeight: 400
-    lineHeight: 1.1
+    textTransform: uppercase
   devanagari-accent:
-    fontFamily: "Yatra One, cursive"
-    fontWeight: 400
+    fontFamily: "Noto Serif Devanagari, serif"
+    fontWeight: 600
   body:
-    fontFamily: "Poppins, sans-serif"
+    fontFamily: "Space Grotesk, sans-serif"
     fontWeight: 400
   label:
-    fontFamily: "Poppins, sans-serif"
-    fontWeight: 600
+    fontFamily: "Space Grotesk, sans-serif"
+    fontWeight: 700
+    letterSpacing: "0.22em"
 rounded:
-  sm: "4px"
-  md: "6px"
+  none: "0px"
 spacing:
-  sm: "1rem"
-  md: "1.75rem"
-  lg: "3rem"
+  sm: "0.75rem"
+  md: "1.25rem"
+  lg: "2rem"
 components:
   button-primary:
     backgroundColor: "{colors.gold}"
-    textColor: "{colors.green}"
-    rounded: "{rounded.sm}"
-    padding: "0.875rem 1.75rem"
+    textColor: "{colors.ink}"
+    border: "3px solid {colors.ink}"
+    shadow: "7px 7px 0 {colors.ink}"
   button-secondary:
-    backgroundColor: "transparent"
-    textColor: "{colors.gold}"
-    rounded: "{rounded.sm}"
-    padding: "0.75rem 1.75rem"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    border: "3px solid {colors.ink}"
+    shadow: "4px 4px 0 {colors.ink}"
 ---
 
 # Design System: HH Goa 2026 Frame Generator
 
 ## Overview
 
-**Creative North Star: "One Postcard, One Illustration, No Noise"**
+**Creative North Star: "A Pass You'd Actually Flash"**
 
-This is the third visual direction for this product, and it is a deliberate
-synthesis rather than a compromise: the palette and wordmark are pinned to
-the *official* Hacker House Goa 2026 site (`hhgoa.com`) per the user's
-direct instruction, but the structure around them follows Swiss/minimalist
-discipline — one accent color, a clean grid, generous whitespace, and no
-decorative chrome (no scallop rings, no terminal title bars, no dashed
-borders). The one place this system allows density is a single authored
-illustration: a beach scene with a developer coding at a shack counter,
-which carries all of the page's "richness" so nothing else has to.
+This is the fourth visual direction for this product, and unlike the three
+before it, it was not invented in this thread: the user handed over a
+fully-executable Claude Design comp — `HH Goa 2026 Frame Generator
+v3.dc.html` and `PassCard.dc.html` — with the instruction "Implement." The
+comp is the spec, not a mood board. The world is neubrutalist festival
+merch: thick ink borders, hard offset shadows that physically press on
+hover/active, a cream paper ground, and a laminated builder pass with a
+pill-shaped photo frame, a deterministic pseudo-barcode, and a real QR
+code. An authored line-art illustration (hacker house, palms, geodesic
+dome, campfire, floating code glyphs) carries the one full-bleed rich
+moment on the landing page.
 
-Two earlier directions preceded this one and are documented for history,
-not as guidance to blend back in: an illustrated-postcard system closely
-following a competing submission's card+chrome, and a from-scratch
-terminal/CRT-hacker world built specifically to avoid resembling either
-reference site. Neither should be revived without the user asking.
+The comp's own accent palette was then swapped, on the user's explicit
+instruction, for **hhgoa.com's real accent colors** — read live from that
+site's CSS custom properties (`--background`/`--primary: #0b6839`,
+`--secondary: #fee101`, `--accent: #ff0080`) rather than assumed. The
+neubrutalist structure (borders, hard shadows, cream ground) stays from
+the comp; only the hue family changed.
+
+Three earlier directions preceded this one and are documented for
+history, not as guidance to blend back in: (1) an illustrated-postcard
+system closely following a competing submission's card+chrome, (2) a
+from-scratch terminal/CRT-hacker world, (3) a Swiss/minimalist system
+pinned to an earlier, unverified guess at hhgoa.com's palette with zero
+shadows or decorative borders. None should be revived without the user
+asking.
 
 **Key Characteristics:**
-- Deep forest-green ground everywhere; cream only inside the illustration and the photo frame
-- Exactly one accent color (gold) carries buttons, links, focus states, and the wordmark
-- Hot pink appears in exactly one place per screen: the word "गोवा"
-- No shadows, no borders-as-decoration, no rings — underlines and hairlines are the only dividers
-- One rich illustrated moment (the beach+coding hero scene); everything else is typography and space
+- Cream paper ground everywhere on UI chrome; the pass itself is the one place a dark forest-green surface appears
+- Every interactive element gets a 3px ink border and a hard offset box-shadow that shrinks and shifts on press — no soft shadows anywhere
+- Archivo Black carries every headline and label at full commitment (uppercase, tight tracking); Space Grotesk carries everything readable at length
+- गोवा is always Noto Serif Devanagari, always hot pink — the one place pink appears outside the Share-to-X action
+- A fixed dot-grid + rotated gold band + oversized "PASS"/"गोवा" watermark sits behind every screen, low-contrast enough to never compete with content
+- The pass builds itself in the background as the user types (debounced); "Generate" is a reveal, not a wait — there is no loading-screen theater anywhere in this flow
 
 ## Colors
 
 ### Primary
-- **Gold** (#f4c430): the only accent used for calls-to-action, links, focus rings, the wordmark, and the sun/illustration highlight. If it's interactive or important, it's gold — nothing else competes for that role.
+- **Gold** (#fee101): hhgoa.com's own `--secondary` yellow — the single primary call-to-action color across the whole product ("Create My Pass," "Generate My Pass," Download, confirm actions, the pass's MEMBER pill and PASS NO. value). If it's the one thing the user should do next, it's this yellow.
+- **Ink** (#101010): every border, most body text, and the crop-tool corner-bracket ground. This is a border-and-text color, never a large fill.
 
 ### Secondary
-- **Hot Pink** (#ec1e79): reserved exclusively for the word "गोवा" wherever the lockup appears (nav, hero, card). Never a button color, never a second accent.
+- **Hot Pink** (#ff0080): hhgoa.com's own `--accent` — गोवा wherever the lockup appears, the Share-to-X action, and the pass's stack/role line. Never a neutral UI color.
+- **Forest** (#0b6839) / **Forest Deep** (#063d20): hhgoa.com's own `--background`/`--primary` green — the brand button, the pass's photo-header block (as a gradient), and the pass's bottom bar.
 
 ### Neutral
-- **Forest Green** (#0d3b28): the page and card ground — the one background color this system uses.
-- **Cream** (#f4f1ea): sand/illustration fill and the card's photo-frame surround; never a page background.
-- **Text Dim** (#9db3a4): secondary text on green (subline, helper copy, labels) — a muted tint of the ground hue, never plain gray.
+- **Paper** (#fff3d6): nav/header/footer-adjacent chrome ground.
+- **Paper Deep** (#fbf1dc): the page ground behind everything (the fixed texture layer's base color).
+- **Cream** (#f3e7ce): the pass's own laminate face color — distinct from the page's paper tones, reserved for the card artifact itself.
 
 ### Named Rules
-**The One Ground Rule.** Every screen's background is forest green, full stop. Cream exists only inside the illustration and the photo frame; it never becomes a page or section background.
+**The Hard Shadow Rule.** Every clickable surface (buttons, the brand button, step chips, the dropzone) carries a 3px ink border and an offset box-shadow via the shared `.neu`/`.neu-btn` CSS classes; the shadow shrinks and the element translates toward it on press. A soft `box-shadow` blur anywhere in UI chrome is a regression.
 
-**The Single Accent Rule.** Gold is the only color assigned to interactive elements. A second "helper" accent color for buttons, links, or focus states is a regression — route it through gold or drop the emphasis.
+**The Verified-Palette Rule.** The forest/gold/pink triad is not invented — it is read from hhgoa.com's live CSS custom properties. If the official site's palette ever changes, this system's accent colors should be re-verified from the source, not guessed from memory.
+
+**The One-Pink Rule.** Hot pink marks गोवा and the single most social action (Share to X) — never a neutral button, never a second "just one more" accent.
 
 ## Typography
 
-**Display Font:** Abril Fatface — one static weight, used only for the wordmark and page/section headings.
-**Devanagari Accent Font:** Yatra One — used exclusively for "गोवा".
-**Body Font:** Poppins, weights 400–700.
+**Display Font:** Archivo Black — one static black weight, used for every headline, nav label, button label, and the pass's builder name.
+**Devanagari Accent Font:** Noto Serif Devanagari (weight 600) — used exclusively for गोवा.
+**Body Font:** Space Grotesk, weights 400–700 — body copy, form inputs, and every small tracked label.
 
-**Character:** Abril Fatface's high stroke-contrast reads as a confident event wordmark, matching the official site's own lettering. Poppins stays purely functional underneath it — no second display voice competing for attention.
+**Character:** Archivo Black's uniform heavy weight is what makes the neubrutalist register read as confident rather than decorative — it's the same face on a hero headline and a tiny step chip, never softened. Space Grotesk stays geometric and slightly technical underneath it, matching the "builder" subject without becoming a second display voice.
 
 ### Hierarchy
-- **Display** (400, `clamp(2.25rem, 7vw, 3.75rem)`, line-height 1.1): the "Hacker गोवा House" wordmark and the card's builder name — the only two places this face appears.
-- **Devanagari accent**: गोवा, always pink, sized to sit naturally inside its Latin context (no forced overlap or rotation this time — the restraint itself is the point).
-- **Body** (400, 0.9375rem–1rem): descriptions, form copy.
-- **Label** (600, 0.8125rem–0.875rem, occasionally uppercase): field labels, small captions, footer text.
+- **Display**: hero headline (`clamp(40px,7.6vw,96px)`), the pass's builder name (fit-to-width, up to 109px), nav/button labels (12–19px, tracked).
+- **Devanagari accent**: गोवा, always pink, sized to sit naturally inside its Latin context.
+- **Body**: form values, descriptions (14–19px).
+- **Label**: field labels, step chips, footer copy — bold, uppercase or wide-tracked, 10–13px.
 
 ### Named Rules
-**The Two-Face Rule.** Exactly two typefaces exist in this system (Abril Fatface, Poppins), plus Yatra One for one word. A third face anywhere is a regression.
+**The Two-Face Rule.** Exactly two typefaces exist in this system (Archivo Black, Space Grotesk), plus Noto Serif Devanagari for one word. A third face anywhere is a regression.
 
 ## Layout
 
-Mobile-first, generous and ungridded in the literal sense but disciplined in spacing: nav and content both live in a simple centered column (`max-w-md`/`max-w-2xl`), no sidebars, no dense multi-column chrome. Every screen follows the same skeleton — a borderless, transparent nav (wordmark left, one or two quiet links/buttons right) directly on the green ground, then centered content with real breathing room between elements (`gap-6`–`gap-8`). The hero is the one exception that extends past a simple column: the illustration runs full-width beneath the centered text.
+Content lives in a centered column (`max-w-[560px]` for the build form, `max-w-[1240px]` for the landing hero) directly on the fixed paper-deep texture. Every screen shares the same skeleton: a sticky bordered header (brand button left, Check Hype + primary CTA right), step-specific main content, and a dark forest footer bar. The landing hero is the one full-bleed exception — the illustration runs edge-to-edge beneath the headline, masked with a long (42%) top fade so the headline/CTA above it always reads on clean paper before the scene begins.
 
 ## Elevation & Depth
 
-Flat, deliberately. No shadows anywhere in this system — depth is never simulated with `box-shadow`; color and whitespace alone establish hierarchy. The one visual "lift" device is a hover brightness/opacity shift on interactive elements, never a shadow.
+Hard-shadow, deliberately. Every raised element uses a flat-color offset `box-shadow` (never blurred) that reads as a physically stacked layer, and presses inward on `:hover`/`:active` via `transform: translate(...)`. The pass card itself is the one place a soft-edged shadow-like effect appears (`14px 14px 0 var(--color-ink)` — still a hard offset, just larger, to read as "propped up" on the page).
 
 ### Named Rules
-**The No-Shadow Rule.** If an element needs to feel "raised," that's a sign it should be simplified, not shadowed. This system has zero box-shadow declarations by design.
+**The Press Rule.** Every `.neu-btn` shrinks its shadow and translates toward it on `:active` — the tactile "this is a real button" cue this whole system depends on. An element with hover/active states that skips this is unfinished.
 
 ## Shapes
 
-Minimal and mostly rectilinear: small border-radius (4–6px) on buttons, inputs, and the card's photo frame — never pill-shaped, never sharp 0px (that reads as brutalist, which this isn't). The photo frame is a clean bordered rectangle, not a ring or reticle. The only non-rectilinear shapes live inside the illustration itself (the sun, palm fronds, the figure).
+Rectilinear and unapologetic: 3px square-cornered borders everywhere in UI chrome — no rounded corners on buttons, inputs, or step chips. The one deliberate exception is the pass's own photo frame: a pill-topped shape (large top radius, small bottom radius) with a gold ring, which is this system's signature silhouette and should never be flattened to a plain rectangle.
 
 ## Components
 
 ### Buttons
-- **Shape:** small radius (`rounded`, ~4-6px), never full-pill.
-- **Primary:** solid gold fill, dark-green text, no border, no shadow — brightness shift on hover.
-- **Secondary:** transparent fill, 1px gold border, gold text.
-- **Ghost/tertiary:** text-only, dim by default, gold on hover — used for "Build another card" and back links.
+- **Shape:** 3px ink border, hard offset shadow, zero border-radius.
+- **Tones:** gold (primary action — every "go forward" button in the product), pink (Share to X), paper (neutral / cancel-adjacent), forest (the brand/nav button, and the Download button's "Saved ✓" state).
+- **Press state:** shadow shrinks from 4–7px down to 2–3px and the element translates 2–3px toward it; hover does the opposite (grows the shadow, lifts the element).
 
 ### Cards / Containers
-- **Corner style:** small radius (~4-6px) on the generated card image and the photo frame.
-- **Background:** forest green (page) with a hairline gold border on the card face itself; no card containers elsewhere in the UI (the form has no boxed container — it sits directly on the page).
-- **Border:** a single hairline (1.5-2px), gold-dim — the only border weight this system uses.
+- **The builder pass:** cream (`#f3e7ce`) laminate, no border of its own — it's presented inside a bordered/shadowed frame in the UI (`14px 14px 0` shadow), not bordered itself. Internally: a forest-gradient photo-header block with a scalloped cream hem, then a cream body with the name/stack/identity grid/QR row.
+- **UI containers** (crop tool panel, dropzone): 3px ink border, hard shadow, no radius.
 
 ### Inputs / Fields
-- **Style:** no boxed border — a single bottom hairline (`border-b`), transparent background, label above in Poppins SemiBold.
-- **Focus:** hairline switches to solid gold; global `:focus-visible` also applies a themed gold outline for keyboard users.
-- **Optional fields:** lower-contrast label and hairline (`text-dim`, `border-text-dim/20`) so the form doesn't read as more required fields than it has.
+- **Style:** 3px ink border, hard 5px offset shadow, white/paper fill, Space Grotesk 19px value text.
+- **Focus:** shadow color switches from ink to pink (`box-shadow: 5px 5px 0 var(--color-pink)`), background lightens slightly.
+- **Optional fields:** same visual weight as required fields (this system doesn't lower-contrast optional fields) — the "optional" label text itself communicates that.
 
 ### Navigation
-- **Style:** transparent, borderless, sits directly on the green ground. Wordmark (small Logo component) on the left, one or two quiet text links plus one button on the right. No sticky title-bar chrome.
+- **Style:** sticky, 3px bottom border, paper background. Left: the forest-green bordered brand button ("HACKER HOUSE गोवा 26"). Right: a bordered "Check Hype" link (hidden below `sm`) plus one gold primary CTA whose label and action change with the flow step (`CREATE` on landing, `START OVER` everywhere else, both routing through the same reset-to-build handler).
 
-### The Beach + Coding Illustration (signature component)
-A single hand-authored SVG: sun with rays and a soft reflection, layered palm trees (background pair at reduced opacity, foreground pair full-strength framing the edges), sand, a beach shack with surfboards leaning against it, and — the product-specific detail — a figure seated at the shack counter with an open laptop showing a few lines of code instead of a menu. This is the one place in the system where density and illustration detail are allowed; it should never be duplicated elsewhere on the page, and nothing else on the page should compete with it for visual weight.
+### The Fixed Paper Texture (signature background)
+A `position:fixed` layer (mounted once in the root layout) behind every screen: a 48px dot-grid, a rotated gold band with a hazard-stripe shadow beneath it, a pink halftone dot cluster in the bottom-right corner, and two oversized low-contrast watermarks ("PASS" outline-stroked, गोवा in translucent pink). This never repeats per-route in the markup — one mount, `position:fixed`, done.
+
+### The Hero Illustration (landing, signature moment)
+A full-bleed, edge-to-edge line-art scene (authored asset, `public/frame-generator/hero-scene.png`, cropped from the user's source art with its border/corner-rivets removed so it bleeds cleanly): a hacker house with builders coding on a deck, a geodesic dome, a campfire circle, palms framing both edges, and floating code-glyph doodles ({}, <>, </>) filling the sky. Masked with a long top-fade gradient (42%) into the page so the headline above always stays legible. This is the one place per experience this density is allowed.
+
+### The Builder Pass (signature artifact)
+Rendered server-side via `@napi-rs/canvas` (`lib/card/render.ts` + `lib/card/layers/*`) at 1300×1630px, matching `PassCard.dc.html`: a forest-gradient header block (brand lockup, MEMBER pill, pill-shaped gold-ringed photo, dates/location/pass-no. column, scalloped cream hem) over a cream body (fit-to-width Archivo Black name, pink stack line, a divider rule, a BUILDER CLASS / CURRENTLY SHIPPING grid, then a real QR code plus a deterministic decorative bar pattern hashed from the builder id + stack — not a scannable barcode), closed by a solid forest bottom bar (#FRAMEINGOA / "2:47 pm STUDIO"). Generation is triggered in the background (debounced ~700ms after the user stops typing or confirms a crop), so the explicit "Generate" action almost always just reveals an already-rendered result.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep every page background forest green; let the illustration and photo frame be the only places cream appears.
-- **Do** treat gold as the single interactive-element color across the entire product.
-- **Do** keep गोवा pink and only गोवा pink.
-- **Do** let form fields breathe — underline style, no boxed borders, generous vertical gap between fields.
-- **Do** treat an empty optional field as "omit this element," never as "fill it with placeholder text" — nothing on the permanent, public card image may be fabricated.
+- **Do** give every clickable surface a 3px ink border and a `.neu`/`.neu-btn` hard shadow with a press state.
+- **Do** keep गोवा in Noto Serif Devanagari, always pink.
+- **Do** treat the pass's pill-shaped photo frame as this system's signature shape — never simplify it to a plain rectangle.
+- **Do** treat an empty optional field as "fall back to the share-page host," never as fabricated placeholder text on the permanent, public card image.
+- **Do** keep the fixed paper texture mounted once (root layout), not repeated per route.
+- **Do** re-verify hhgoa.com's live CSS custom properties before touching the accent palette again — never guess these hexes from memory.
+- **Do** keep card generation running in the background as the user fills the form; never reintroduce a dedicated loading/progress screen for it.
 
 ### Don't:
-- **Don't** add a second accent color for "just one more" button or badge — route it through gold or cut it.
-- **Don't** add shadows, rings, or decorative borders to UI chrome — this system has none by design.
-- **Don't** reuse the scalloped-ring photo frame or the terminal title-bar chrome from earlier directions without the user asking for them back.
-- **Don't** duplicate the beach illustration elsewhere on the page; it is a once-per-experience moment.
-- **Don't** use emoji as icons — the one icon in this system (the upload camera glyph) is an authored single-stroke-weight SVG.
+- **Don't** add soft/blurred box-shadows anywhere in UI chrome — offset hard shadows only.
+- **Don't** round the corners of buttons, inputs, or step chips — 0px radius is the system default outside the pass's photo frame.
+- **Don't** add a second saturated accent color for "just one more" badge — route it through gold/pink/forest or cut it.
+- **Don't** duplicate the hero illustration elsewhere on the page; it is a once-per-experience, landing-only moment.
+- **Don't** revive the prior directions' scalloped-ring photo frame, terminal title-bar chrome, or Swiss/minimalist restraint without the user asking for them back.

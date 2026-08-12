@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LinkButton } from "@/components/Button";
+import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import { getCard } from "@/lib/storage";
 
@@ -42,36 +43,44 @@ export default async function SharePage({ params }: Params) {
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
   return (
-    <main className="flex min-h-full w-full flex-1 flex-col bg-green">
-      <nav className="flex items-center justify-between px-6 py-6 sm:px-12">
-        <Logo />
-        <Link href="/" className="text-sm font-medium text-text-dim hover:text-gold">
-          Build your own
+    <div className="relative z-10 flex min-h-dvh w-full flex-1 flex-col">
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink bg-paper px-4 py-3.5 sm:px-10">
+        <Link href="/" className="neu neu-btn flex items-center gap-2.5 bg-forest px-3.5 py-2.5">
+          <Logo className="text-paper" />
         </Link>
-      </nav>
+        <Link href="/" className="neu neu-btn font-display bg-gold px-5 py-3.5 text-[13px] tracking-[0.02em] uppercase">
+          Build My Pass
+        </Link>
+      </header>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-7 px-6 py-6 text-center">
-        <h1 className="font-display text-2xl text-gold">{card.metadata.name}&rsquo;s builder pass</h1>
+      <main className="animate-pop-in relative z-1 mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center gap-7 px-4 py-8 text-center sm:px-10">
+        <h1 className="font-display text-[26px] text-ink">
+          {card.metadata.name}&rsquo;s builder pass
+        </h1>
 
-        {/* eslint-disable-next-line @next/next/no-img-element -- remote Blob-hosted PNG, not a Next-optimizable local asset */}
-        <img
-          src={card.imageUrl}
-          alt={`${card.metadata.name}'s Hacker House Goa 2026 builder pass`}
-          className="w-full max-w-sm rounded"
-        />
+        <div className="neu w-full max-w-sm overflow-hidden bg-[#F8EFDC]" style={{ boxShadow: "10px 10px 0 var(--color-ink)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- remote Blob-hosted PNG, not a Next-optimizable local asset */}
+          <img
+            src={card.imageUrl}
+            alt={`${card.metadata.name}'s Hacker House Goa 2026 builder pass`}
+            className="block w-full"
+          />
+        </div>
 
-        <div className="flex w-full max-w-sm flex-col gap-3">
-          <LinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer">
+        <div className="flex w-full max-w-sm flex-col gap-3.5">
+          <LinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer" tone="pink" size="lg" className="neu-lg">
             Share to X
           </LinkButton>
-          <LinkButton href={`/api/download/${id}`} download variant="secondary">
+          <LinkButton href={`/api/download/${id}`} download tone="gold" size="lg" className="neu-lg">
             Download PNG
           </LinkButton>
-          <Link href="/" className="text-sm text-text-dim hover:text-gold">
+          <Link href="/" className="font-body text-[13px] font-semibold tracking-[0.02em] text-ink hover:text-pink">
             Build your own card
           </Link>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <Footer />
+    </div>
   );
 }

@@ -9,14 +9,18 @@ export type PhotoFrameLayout = {
   h: number;
 };
 
-const RADIUS = 10;
+const RADIUS = { tl: 247, tr: 247, br: 18, bl: 18 };
 
+/** The pill-topped portrait frame — this comp's signature shape, not a plain rectangle. */
 export function drawPhotoFrame(ctx: SKRSContext2D, photo: Image, layout: PhotoFrameLayout) {
   const { x, y, w, h } = layout;
 
   ctx.save();
   roundRectPath(ctx, x, y, w, h, RADIUS);
   ctx.clip();
+
+  ctx.fillStyle = COLORS.forestDeep;
+  ctx.fillRect(x, y, w, h);
 
   const imgW = photo.width;
   const imgH = photo.height;
@@ -29,10 +33,9 @@ export function drawPhotoFrame(ctx: SKRSContext2D, photo: Image, layout: PhotoFr
   ctx.drawImage(photo, sx, sy, sw, sh, x, y, w, h);
   ctx.restore();
 
-  // A single quiet gold frame — no scallop ring, no reticle brackets.
   ctx.save();
   ctx.strokeStyle = COLORS.gold;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 4;
   roundRectPath(ctx, x, y, w, h, RADIUS);
   ctx.stroke();
   ctx.restore();

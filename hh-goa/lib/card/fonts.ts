@@ -10,13 +10,9 @@ export function registerCardFonts() {
   if (registered) return;
 
   const files: Array<[string, string]> = [
-    ["AbrilFatface-Regular.ttf", FONT_FAMILY.display],
-    ["YatraOne-Regular.ttf", FONT_FAMILY.devanagari],
-    ["Poppins-Black.ttf", FONT_FAMILY.poppinsBlack],
-    ["Poppins-Bold.ttf", FONT_FAMILY.poppinsBold],
-    ["Poppins-SemiBold.ttf", FONT_FAMILY.poppinsSemiBold],
-    ["Poppins-Medium.ttf", FONT_FAMILY.poppinsMedium],
-    ["Poppins-Regular.ttf", FONT_FAMILY.poppinsRegular],
+    ["ArchivoBlack-Regular.ttf", FONT_FAMILY.display],
+    ["NotoSerifDevanagari-Variable.ttf", FONT_FAMILY.devanagari],
+    ["SpaceGrotesk-Variable.ttf", FONT_FAMILY.body],
   ];
 
   for (const [file, family] of files) {

@@ -39,7 +39,7 @@ export function fitText(
   return size;
 }
 
-/** A quiet horizontal rule — the only divider device this restrained world uses. */
+/** A quiet horizontal rule. */
 export function drawRule(ctx: SKRSContext2D, x: number, y: number, w: number, color: string, weight = 1.5) {
   ctx.save();
   ctx.strokeStyle = color;
@@ -48,30 +48,5 @@ export function drawRule(ctx: SKRSContext2D, x: number, y: number, w: number, co
   ctx.moveTo(x, y);
   ctx.lineTo(x + w, y);
   ctx.stroke();
-  ctx.restore();
-}
-
-/** A single-stroke palm leaf — the one restrained beach motif allowed on the card face. */
-export function drawPalmAccent(ctx: SKRSContext2D, cx: number, cy: number, size: number, color: string) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.fillStyle = color;
-  const fronds: Array<[number, number]> = [
-    [-1, -0.15],
-    [-0.55, -0.85],
-    [0, -1.05],
-    [0.55, -0.85],
-    [1, -0.15],
-  ];
-  for (const [fx, fy] of fronds) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(fx * size * 0.5, fy * size * 0.35, fx * size * 0.72, fy * size * 0.72);
-    ctx.quadraticCurveTo(fx * size * 0.32, fy * size * 0.48, 0, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
   ctx.restore();
 }

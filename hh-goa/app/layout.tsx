@@ -1,23 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Abril_Fatface, Poppins, Yatra_One } from "next/font/google";
+import { Archivo_Black, Space_Grotesk, Noto_Serif_Devanagari } from "next/font/google";
+import Background from "@/components/Background";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "700"],
 });
 
-const abrilFatface = Abril_Fatface({
+const archivoBlack = Archivo_Black({
   variable: "--font-display",
   subsets: ["latin"],
   weight: "400",
 });
 
-const yatraOne = Yatra_One({
-  variable: "--font-yatra-one",
-  subsets: ["latin", "devanagari"],
-  weight: "400",
+const notoSerifDevanagari = Noto_Serif_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari", "latin"],
+  weight: "600",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0d3b28",
+  themeColor: "#fff3d6",
 };
 
 // React strips {/* JSX comments */} entirely — they never reach the DOM.
@@ -37,28 +38,33 @@ export const viewport: Viewport = {
 // the production build and can be grepped from the built output.
 function DirectionContract() {
   const contract = `
-    THESIS: A hacker house on a beach still needs to feel like a beach —
-    one calm, generously-spaced page with a single rich illustrated
-    moment, not a wall of UI chrome competing with it.
-    OWN-WORLD: hhgoa.com's own palette (deep forest green, one gold
-    accent, hot pink reserved for गोवा only) applied with Swiss/minimalist
-    discipline: grid-based, high-contrast, one accent color, no
-    decorative shadows or borders on UI chrome. The illustration is the
-    one place detail is allowed — an authored beach scene with a
-    developer coding at a shack counter, laptop screen included.
-    STORY: A visitor recognizes the event's own colors immediately, reads
-    a two-line pitch in a generous white-space layout, and either scrolls
-    into the illustrated scene or clicks straight through to build a
-    pass.
-    FIRST VIEWPORT: Deep-green ground, minimal nav (wordmark + two quiet
-    links), a centered serif headline with गोवा in pink, one gold CTA —
-    the beach-and-coding illustration begins directly below, full width.
-    FORM: Explicitly pinned to hhgoa.com's palette and UI per the user's
-    direct instruction, combined with the ui-ux-pro-max skill's
-    Minimalism & Swiss Style rules for structure (grid, whitespace, one
-    accent, no gratuitous decoration). Execution: code-led, no
-    image-generation tool in this session; the hero illustration is
-    hand-authored SVG.
+    THESIS: A hacker residency needs a pass you'd actually want to flash —
+    a physical, laminated, stamped artifact, not another soft SaaS card
+    with a gradient and a rounded corner.
+    OWN-WORLD: neubrutalist festival-pass system pinned by the user's own
+    approved comp (HH Goa 2026 Frame Generator v3.dc.html), recolored with
+    hhgoa.com's own verified palette (--background/--primary #0b6839,
+    --secondary #fee101, --accent #ff0080, read live from the official
+    site's CSS custom properties): cream paper ground (#FFF3D6/#FBF1DC),
+    3px ink borders, hard offset box-shadows that press on hover/active,
+    Archivo Black display type, Space Grotesk body/label type, गोवा set in
+    Noto Serif Devanagari pink, a gold CTA, a forest-green brand block,
+    and a dot-grid + diagonal-band paper texture behind everything.
+    STORY: A visitor lands on a loud, confident pass-generator storefront,
+    recognizes it as a real credential (not a toy), drops a photo, crops
+    it, names their stack, and watches their pass build itself in the
+    background as they type, so "Generate" just reveals it.
+    FIRST VIEWPORT: cream ground, dot-grid + diagonal gold band behind a
+    bordered "HACKER HOUSE गोवा 26" brand button and a CHECK HYPE / CREATE
+    lockup, a giant Archivo Black headline ("BUILD IN GOA, SHIP FROM
+    PARADISE") with PARADISE in pink-stroked ink, a gold "CREATE MY PASS"
+    button with a hard shadow, and the illustrated hero scene bleeding
+    off the bottom edge.
+    FORM: user-and-brief-pinned direction — the .dc.html comp supplied
+    through claude_design MCP is the executable spec; per new-work.md
+    section 3, "a user- or brief-pinned direction beats the roll,
+    always," so the concept-seed dice round was skipped and this comp is
+    the law the build reproduces.
     FINISH: unreviewed and undocumented is unfinished; this build ends
     with the finish review, the verdict, and DESIGN.md
   `.trim();
@@ -72,10 +78,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${poppins.variable} ${abrilFatface.variable} ${yatraOne.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${archivoBlack.variable} ${notoSerifDevanagari.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-green text-foreground font-sans">
+      <body className="min-h-full flex flex-col bg-paper-deep text-ink font-sans">
         <DirectionContract />
+        <Background />
         {children}
       </body>
     </html>
