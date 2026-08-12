@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import { LinkButton } from "@/components/Button";
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
+import ShareToXButton from "@/components/ShareToXButton";
 import { OG_IMAGE_H, OG_IMAGE_W } from "@/lib/card/theme";
 import { getCard } from "@/lib/storage";
-import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -50,9 +50,6 @@ export default async function SharePage({ params }: Params) {
   const protocol = host?.startsWith("localhost") ? "http" : "https";
   const shareUrl = `${protocol}://${host}/share/${id}`;
 
-  const tweetText = buildTweetText(card.metadata);
-  const tweetUrl = buildTweetUrl(tweetText, shareUrl);
-
   return (
     <div className="relative z-10 flex min-h-dvh w-full flex-1 flex-col">
       <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink bg-paper px-4 py-3.5 sm:px-10">
@@ -79,9 +76,12 @@ export default async function SharePage({ params }: Params) {
         </div>
 
         <div className="flex w-full max-w-sm flex-col gap-3.5">
-          <LinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer" tone="pink" size="lg" className="neu-lg">
-            Share to X
-          </LinkButton>
+          <ShareToXButton
+            card={card.metadata}
+            imageUrl={card.imageUrl}
+            shareUrl={shareUrl}
+            className="neu-lg"
+          />
           <LinkButton href={`/api/download/${id}`} download tone="gold" size="lg" className="neu-lg">
             Download PNG
           </LinkButton>

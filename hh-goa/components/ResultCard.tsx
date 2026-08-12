@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 import { Button, LinkButton } from "./Button";
 import type { GenerateResponse } from "./GeneratorFlow";
+import ShareToXButton from "./ShareToXButton";
 
 const PARTICLES: Array<{ icon: string; style: string; delay: string }> = [
   { icon: "🌴", style: "left-[-8%] bottom-[18%]", delay: "0s" },
@@ -20,8 +20,6 @@ export default function ResultCard({
   onStartOver: () => void;
 }) {
   const [saved, setSaved] = useState(false);
-  const tweetText = buildTweetText(result);
-  const tweetUrl = buildTweetUrl(tweetText, result.shareUrl);
   const shareHost = result.shareUrl.replace(/^https?:\/\//, "");
 
   return (
@@ -71,12 +69,12 @@ export default function ResultCard({
       </div>
 
       <div className="flex flex-wrap justify-center gap-3.5">
-        <LinkButton href={tweetUrl} target="_blank" rel="noopener noreferrer" tone="pink" size="lg" className="neu-lg">
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden>
-            <path d="M18.2 2H21l-6.5 7.4L21.7 22H15l-4.6-6.3L4.9 22H2l7-8L2 2h6.8l4.3 5.9zM17 20.2h1.6L6.9 3.7H5.2z" />
-          </svg>
-          Share To X
-        </LinkButton>
+        <ShareToXButton
+          card={result}
+          imageUrl={result.imageUrl}
+          shareUrl={result.shareUrl}
+          className="neu-lg"
+        />
         <LinkButton
           href={result.downloadUrl}
           download
