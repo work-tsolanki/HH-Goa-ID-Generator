@@ -1,6 +1,13 @@
 export const CARD_W = 1934;
 export const CARD_H = 2400;
 
+// Standard OG/Twitter "large image" card aspect (~1.91:1) — the badge itself
+// is a tall portrait rectangle, so the share preview centers it on a padded
+// landscape canvas at this size rather than handing X the raw portrait PNG,
+// which it force-crops to fit a landscape frame.
+export const OG_IMAGE_W = 1200;
+export const OG_IMAGE_H = 630;
+
 export const COLORS = {
   cream: "#f3e7ce",
   forestTop: "#12523a",

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { LinkButton } from "@/components/Button";
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
-import { CARD_H, CARD_W } from "@/lib/card/theme";
+import { OG_IMAGE_H, OG_IMAGE_W } from "@/lib/card/theme";
 import { getCard } from "@/lib/storage";
 import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 
@@ -25,14 +25,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: card.imageUrl, width: CARD_W, height: CARD_H }],
+      // The much smaller WebP variant, not the full-size download PNG — X
+      // has to fetch and process whatever this points at before the
+      // compose-box preview shows up, so a lighter file attaches faster.
+      images: [{ url: card.ogImageUrl, width: OG_IMAGE_W, height: OG_IMAGE_H }],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [card.imageUrl],
+      images: [card.ogImageUrl],
     },
   };
 }

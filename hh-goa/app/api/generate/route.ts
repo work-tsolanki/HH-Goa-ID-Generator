@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       shareUrl,
     });
 
-    const { imageUrl } = await saveCard(id, result.png, {
+    const { imageUrl } = await saveCard(id, result.png, result.ogImage, {
       id,
       name,
       badgeTitle: result.badgeTitle,

@@ -1,10 +1,10 @@
 import path from "node:path";
-import { createCanvas, loadImage, type Image, type SKRSContext2D } from "@napi-rs/canvas";
+import { createCanvas, loadImage, type Canvas, type Image, type SKRSContext2D } from "@napi-rs/canvas";
 import QRCode from "qrcode";
 import { getFlavor } from "./flavor";
 import { registerCardFonts } from "./fonts";
 import { generateBuilderCode } from "./id";
-import { CARD_H, CARD_W, COLORS, FONT_FAMILY, TEMPLATE_FIELDS } from "./theme";
+import { CARD_H, CARD_W, COLORS, FONT_FAMILY, OG_IMAGE_H, OG_IMAGE_W, TEMPLATE_FIELDS } from "./theme";
 import { fitText, roundRectPath } from "./utils";
 
 export type GenerateCardInput = {
@@ -19,6 +19,8 @@ export type GenerateCardInput = {
 
 export type GenerateCardResult = {
   png: Buffer;
+  /** Same card, re-encoded as a much smaller WebP for X/OG unfurl previews. */
+  ogImage: Buffer;
   builderCode: string;
   builderClass: string;
   tagline: string;
@@ -78,15 +80,36 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
     drawSerial(ctx, local, builderCode);
   });
 
-  const png = await canvas.encode("png");
+  const [png, ogImage] = await Promise.all([canvas.encode("png"), encodeOgImage(canvas)]);
 
   return {
     png: Buffer.from(png),
+    ogImage,
     builderCode,
     builderClass: flavor.builderClass,
     tagline: flavor.tagline,
     badgeTitle: flavor.badgeTitle,
   };
+}
+
+// The badge is a tall portrait rectangle; X's summary_large_image card
+// expects a landscape (~1.91:1) source and force-crops anything else, which
+// was cutting the top/bottom off the badge in the tweet preview. Centering
+// it on its own padded landscape canvas gives X an image that's already the
+// shape it wants, so nothing gets cropped.
+async function encodeOgImage(card: Canvas): Promise<Buffer> {
+  const ogCanvas = createCanvas(OG_IMAGE_W, OG_IMAGE_H);
+  const octx = ogCanvas.getContext("2d");
+  octx.fillStyle = COLORS.cream;
+  octx.fillRect(0, 0, OG_IMAGE_W, OG_IMAGE_H);
+
+  const pad = 48;
+  const scale = Math.min((OG_IMAGE_W - pad * 2) / CARD_W, (OG_IMAGE_H - pad * 2) / CARD_H);
+  const dw = CARD_W * scale;
+  const dh = CARD_H * scale;
+  octx.drawImage(card, (OG_IMAGE_W - dw) / 2, (OG_IMAGE_H - dh) / 2, dw, dh);
+
+  return Buffer.from(await ogCanvas.encode("webp", 82));
 }
 
 type FieldSpec = { cx: number; cy: number; w: number; h: number; deg: number };
