@@ -562,7 +562,7 @@ export default function GeneratorFlow() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={20}
-                  placeholder="First Last"
+                  placeholder="Priya Nair"
                   className="neu bg-white px-4 py-4 font-body text-[19px] text-ink outline-none focus:bg-[#FFFDF6] focus:shadow-[5px_5px_0_var(--color-pink)]"
                 />
               </label>
