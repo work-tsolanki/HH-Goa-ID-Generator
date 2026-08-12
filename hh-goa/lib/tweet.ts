@@ -22,7 +22,7 @@ export function buildTweetText({ name, badgeTitle, builderClass, builderCode }: 
     "See you 28–31 Oct in Goa 🇮🇳",
     "Build your own pass 👇",
     "",
-    "#FrameInGoa #HackerHouseGoa",
+    "#FrameInGoa #HackerHouseGoa @247pmstudio",
   ].join("\n");
 }
 
