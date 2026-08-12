@@ -136,6 +136,34 @@ body {
   }
 }
 
+/* A lazy, beachy sway that picks up once the reveal's own settle finishes —
+   the delay matches hhg-reveal's duration so there's no jump between them. */
+@keyframes hhg-sway {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1deg);
+  }
+}
+
+/* Small "bubble up and fade" pop for the beach-vibe particles that appear
+   around the card when it reveals — staggered per-particle via animation-delay. */
+@keyframes hhg-bob {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.5) rotate(0deg);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-70px) scale(1.15) rotate(14deg);
+  }
+}
+
 .animate-pop-in {
   animation: hhg-pop-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
@@ -145,5 +173,11 @@ body {
 }
 
 .animate-reveal {
-  animation: hhg-reveal 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  animation:
+    hhg-reveal 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) both,
+    hhg-sway 5s ease-in-out 0.6s infinite;
+}
+
+.animate-bob {
+  animation: hhg-bob 2.4s ease-out both;
 }

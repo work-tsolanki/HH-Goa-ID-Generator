@@ -1,7 +1,8 @@
-import Logo from "./Logo";
-import { Button } from "./Button";
+"use client";
 
-const HYPE_URL = "https://x.com/search?q=%23FrameInGoa&src=typed_query&f=live";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "./Button";
+import Logo from "./Logo";
 
 export default function NavHeader({
   onLogoClick,
@@ -12,24 +13,94 @@ export default function NavHeader({
   ctaLabel: string;
   onCtaClick: () => void;
 }) {
+  const [hypeOpen, setHypeOpen] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!hypeOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setHypeOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [hypeOpen]);
+
+  function openHype() {
+    setMuted(false);
+    setHypeOpen(true);
+  }
+
+  function toggleMute() {
+    setMuted((m) => {
+      const next = !m;
+      if (videoRef.current) videoRef.current.muted = next;
+      return next;
+    });
+  }
+
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink bg-paper px-4 py-3.5 sm:px-10">
-      <button type="button" onClick={onLogoClick} className="neu neu-btn flex items-center gap-2.5 bg-forest px-3.5 py-2.5">
-        <Logo className="text-paper" />
-      </button>
-      <div className="flex items-center gap-2.5">
-        <a
-          href={HYPE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="neu neu-btn hidden font-display px-4.5 py-3.5 text-[13px] tracking-[0.04em] text-ink uppercase whitespace-nowrap bg-paper hover:bg-gold sm:inline-flex sm:items-center"
+    <>
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink bg-paper px-4 py-3.5 sm:px-10">
+        <button type="button" onClick={onLogoClick} className="neu neu-btn flex items-center gap-2.5 bg-forest px-3.5 py-2.5">
+          <Logo className="text-paper" />
+        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={openHype}
+            className="neu neu-btn hidden font-display px-4.5 py-3.5 text-[13px] tracking-[0.04em] text-ink uppercase whitespace-nowrap bg-paper hover:bg-gold sm:inline-flex sm:items-center"
+          >
+            Check Hype
+          </button>
+          <Button tone="gold" onClick={onCtaClick} className="whitespace-nowrap">
+            {ctaLabel}
+          </Button>
+        </div>
+      </header>
+
+      {hypeOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 px-4 py-8"
+          onClick={() => setHypeOpen(false)}
         >
-          Check Hype
-        </a>
-        <Button tone="gold" onClick={onCtaClick} className="whitespace-nowrap">
-          {ctaLabel}
-        </Button>
-      </div>
-    </header>
+          <div className="neu neu-lg w-full max-w-2xl bg-ink" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between gap-2.5 border-b-[3px] border-ink bg-paper px-3.5 py-2.5">
+              <span className="font-display text-[13px] tracking-[0.04em] uppercase">HH Goa Hype Reel</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  aria-label={muted ? "Unmute" : "Mute"}
+                  aria-pressed={muted}
+                  className="neu neu-btn bg-forest text-paper flex h-9 w-9 items-center justify-center font-display text-[15px]"
+                >
+                  {muted ? "🔇" : "🔊"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHypeOpen(false)}
+                  aria-label="Close"
+                  className="neu neu-btn bg-gold text-ink flex h-9 w-9 items-center justify-center font-display text-[16px]"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="overflow-hidden">
+              <video
+                ref={videoRef}
+                src="/frame-generator/prehype.mp4"
+                controls
+                autoPlay
+                muted={muted}
+                playsInline
+                className="block w-full"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -17,4 +17,4 @@ export function clipFrame(ctx: SKRSContext2D) {
 }
 
 export const CONTENT_PAD = 65;
-export const HEADER_H = 910;
+export const HEADER_H = 832;

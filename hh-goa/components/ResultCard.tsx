@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 import { Button, LinkButton } from "./Button";
 import type { GenerateResponse } from "./GeneratorFlow";
+
+const PARTICLES: Array<{ icon: string; style: string; delay: string }> = [
+  { icon: "🌴", style: "left-[-8%] bottom-[18%]", delay: "0s" },
+  { icon: "☀️", style: "right-[-4%] top-[8%]", delay: "0.35s" },
+  { icon: "🌊", style: "left-[8%] bottom-[-4%]", delay: "0.7s" },
+  { icon: "🐚", style: "right-[6%] bottom-[-2%]", delay: "1.05s" },
+];
 
 export default function ResultCard({
   result,
@@ -12,13 +20,23 @@ export default function ResultCard({
   onStartOver: () => void;
 }) {
   const [saved, setSaved] = useState(false);
-  const tweetText = `I just built my Hacker House Goa 2026 builder pass — ${result.badgeTitle}. See you 28–31 Oct #FrameInGoa`;
-  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(result.shareUrl)}`;
+  const tweetText = buildTweetText(result);
+  const tweetUrl = buildTweetUrl(tweetText, result.shareUrl);
   const shareHost = result.shareUrl.replace(/^https?:\/\//, "");
 
   return (
     <main className="animate-pop-in relative z-1 flex flex-1 flex-col items-center gap-7 px-4 pt-6.5 pb-24 sm:px-10 sm:pt-13">
       <div className="animate-reveal relative w-full max-w-[410px]">
+        {PARTICLES.map((p, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className={`animate-bob pointer-events-none absolute z-3 text-[26px] ${p.style}`}
+            style={{ animationDelay: p.delay }}
+          >
+            {p.icon}
+          </span>
+        ))}
         <span className="neu font-display absolute bottom-full left-[-18px] z-4 mb-3.5 bg-pink px-4 py-3.5 text-[15px] text-paper">
           PASS READY ✓
         </span>

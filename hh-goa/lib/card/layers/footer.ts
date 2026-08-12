@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { CARD_H, CARD_W, COLORS, FONT_FAMILY } from "../theme";
 
 const BOTTOM_BAR_H = 73;
+const QR_SIZE = 143;
 
 function hashString(input: string): number {
   let h = 2166136261;
@@ -28,7 +29,7 @@ export async function drawVerifyRow(
   opts: { x: number; y: number; right: number; builderId: string; stack: string; handleUrl: string },
 ) {
   const { x, y, right, builderId, stack, handleUrl } = opts;
-  const qrSize = 162;
+  const qrSize = QR_SIZE;
 
   const qrBuffer = await QRCode.toBuffer(handleUrl.startsWith("http") ? handleUrl : `https://${handleUrl}`, {
     type: "png",
@@ -47,20 +48,21 @@ export async function drawVerifyRow(
   ctx.drawImage(qrImg, x + 6.5, y + 6.5, qrSize - 13, qrSize - 13);
   ctx.restore();
 
-  const barsX = x + qrSize + 39;
+  const barsX = x + qrSize + 34;
   const barsW = right - barsX;
-  const barsH = 57;
+  const barsH = 49;
   const bars = buildBars(hashString(builderId + stack));
   const totalBarW = bars.reduce((a, b) => a + b.w, 0) + 5.5 * (bars.length - 1);
   const scale = totalBarW > barsW ? barsW / totalBarW : 1;
 
+  const barsTop = y + qrSize - barsH;
   ctx.save();
   let bx = barsX;
   for (const bar of bars) {
     const w = bar.w * scale;
     ctx.fillStyle = COLORS.ink;
     ctx.globalAlpha = bar.o;
-    ctx.fillRect(bx, y, w, barsH);
+    ctx.fillRect(bx, barsTop, w, barsH);
     bx += w + 5.5 * scale;
   }
   ctx.restore();
@@ -68,10 +70,13 @@ export async function drawVerifyRow(
   ctx.save();
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.font = `500 18px ${FONT_FAMILY.body}`;
-  ctx.fillStyle = "rgba(11,51,37,.6)";
-  const label = `SCAN TO VERIFY · ${handleUrl}`;
-  ctx.fillText(label, barsX, y + barsH + 26, barsW);
+  ctx.font = `700 18px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = COLORS.ink;
+  ctx.fillText("SCAN TO VALIDATE PASS", barsX, barsTop + barsH + 26, barsW);
+
+  ctx.font = `500 17px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(11,51,37,.55)";
+  ctx.fillText(handleUrl, barsX, barsTop + barsH + 48, barsW);
   ctx.restore();
 }
 
@@ -85,16 +90,31 @@ export function drawBottomBar(ctx: SKRSContext2D) {
   const midY = top + BOTTOM_BAR_H / 2 + 1;
 
   ctx.textBaseline = "middle";
-  ctx.font = `700 22px ${FONT_FAMILY.body}`;
-  ctx.fillStyle = COLORS.gold;
   ctx.textAlign = "left";
-  ctx.fillText("#FRAMEINGOA", padX, midY);
+  drawJourneyMark(ctx, padX, midY);
 
-  ctx.font = `500 19px ${FONT_FAMILY.body}`;
-  ctx.fillStyle = "rgba(243,231,206,.6)";
+  ctx.font = `700 20px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(243,231,206,.85)";
+  ctx.textAlign = "center";
+  ctx.fillText("#FRAMEINGOA", CARD_W / 2, midY);
+
+  ctx.font = `500 17px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(243,231,206,.55)";
   ctx.textAlign = "right";
-  ctx.fillText("2:47 pm STUDIO", CARD_W - padX, midY);
+  ctx.fillText("LESS NOISE. MORE SIGNAL.", CARD_W - padX, midY);
   ctx.restore();
 }
 
-export { BOTTOM_BAR_H };
+/** "BUILD → COLLAB → SHIP", gold labels joined by pink arrows. */
+function drawJourneyMark(ctx: SKRSContext2D, x: number, y: number) {
+  const parts = ["BUILD", "→", "COLLAB", "→", "SHIP"];
+  ctx.font = `700 20px ${FONT_FAMILY.body}`;
+  let cx = x;
+  for (const part of parts) {
+    ctx.fillStyle = part === "→" ? COLORS.pink : COLORS.gold;
+    ctx.fillText(part, cx, y);
+    cx += ctx.measureText(part).width + 8;
+  }
+}
+
+export { BOTTOM_BAR_H, QR_SIZE };

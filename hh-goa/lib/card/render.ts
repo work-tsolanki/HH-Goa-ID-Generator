@@ -2,10 +2,11 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { getFlavor } from "./flavor";
 import { registerCardFonts } from "./fonts";
 import { generateBuilderCode } from "./id";
+import { drawGroundPalms, drawGroundStrip } from "./layers/decor";
 import { clipFrame, CONTENT_PAD, drawFrame, HEADER_H } from "./layers/frame";
-import { drawBottomBar, drawVerifyRow, BOTTOM_BAR_H } from "./layers/footer";
+import { drawBottomBar, drawVerifyRow, QR_SIZE } from "./layers/footer";
 import { drawHeader } from "./layers/header";
-import { drawIdentityGrid, drawName, drawStackLine } from "./layers/identity";
+import { drawBuilderJourney, drawIdentityGrid, drawName, drawStackLine, drawTicketStub } from "./layers/identity";
 import { CARD_H, CARD_W } from "./theme";
 import { drawRule } from "./utils";
 
@@ -26,6 +27,8 @@ export type GenerateCardResult = {
   tagline: string;
   badgeTitle: string;
 };
+
+const BODY_BOTTOM_PAD = 125;
 
 export async function generateCard(input: GenerateCardInput): Promise<GenerateCardResult> {
   registerCardFonts();
@@ -48,16 +51,22 @@ export async function generateCard(input: GenerateCardInput): Promise<GenerateCa
   const contentW = contentRight - contentX;
   const bodyTop = HEADER_H + 34;
 
-  let cursorY = bodyTop + 95;
-  cursorY = drawName(ctx, contentX, cursorY, input.name.trim(), contentW);
-  cursorY = drawStackLine(ctx, contentX, cursorY + 45, flavor.badgeTitle);
+  drawGroundStrip(ctx, HEADER_H);
+  drawGroundPalms(ctx, HEADER_H);
+  drawTicketStub(ctx, bodyTop, builderCode);
 
-  const ruleY = cursorY + 58;
+  let cursorY = bodyTop + 80;
+  cursorY = drawName(ctx, contentX, cursorY, input.name.trim(), contentW);
+  cursorY = drawStackLine(ctx, contentX, cursorY + 42, flavor.badgeTitle);
+
+  const ruleY = cursorY + 42;
   drawRule(ctx, contentX, ruleY, contentW, "rgba(11,51,37,.28)", 2);
 
-  drawIdentityGrid(ctx, contentX, ruleY + 55, contentW, flavor.builderClass, flavor.tagline);
+  const gridBottom = drawIdentityGrid(ctx, contentX, ruleY + 41, contentW, flavor.builderClass, flavor.tagline);
 
-  const verifyTop = CARD_H - BOTTOM_BAR_H - 31 - 162;
+  drawBuilderJourney(ctx, contentX, gridBottom + 120, contentW);
+
+  const verifyTop = CARD_H - BODY_BOTTOM_PAD - QR_SIZE;
   const handleUrl = formatHandleUrl(input.socialUrl, input.shareUrl);
   await drawVerifyRow(ctx, {
     x: contentX,

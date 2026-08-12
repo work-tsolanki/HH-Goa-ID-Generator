@@ -22,6 +22,12 @@ const notoSerifDevanagari = Noto_Serif_Devanagari({
 });
 
 export const metadata: Metadata = {
+  // Lets Next.js resolve any relative metadata URLs against the real deployed
+  // origin instead of defaulting to localhost — without this, per-card share
+  // pages built and tested locally can silently ship bad absolute URLs.
+  metadataBase: process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+    : new URL("http://localhost:3000"),
   title: "HH Goa 2026 Frame Generator",
   description:
     "Build your Hacker House Goa 2026 builder pass in seconds. Upload a photo, add your name and stack, and share your #FrameInGoa card.",

@@ -1,10 +1,10 @@
 import type { Image, SKRSContext2D } from "@napi-rs/canvas";
 import { CARD_W, COLORS, FONT_FAMILY } from "../theme";
 import { CONTENT_PAD, HEADER_H } from "./frame";
-import { drawPhotoFrame } from "./photo";
+import { drawPhotoFrame, drawVerifiedBadge } from "./photo";
 import { fitText } from "../utils";
 
-/** Dark-forest gradient header block: brand lockup, MEMBER pill, portrait + pass-detail column, wave hem. */
+/** Dark-forest gradient header block: brand lockup, MEMBER pill, portrait + pass-detail grid, wave hem. */
 export function drawHeader(ctx: SKRSContext2D, photo: Image, builderId: string) {
   const grad = ctx.createLinearGradient(0, 0, CARD_W * 0.35, HEADER_H);
   grad.addColorStop(0, COLORS.forestTop);
@@ -20,7 +20,7 @@ export function drawHeader(ctx: SKRSContext2D, photo: Image, builderId: string) 
 
 function drawBrandRow(ctx: SKRSContext2D) {
   const x = CONTENT_PAD;
-  const y = CONTENT_PAD + 6;
+  const y = CONTENT_PAD + 24;
 
   ctx.save();
   ctx.textAlign = "left";
@@ -45,7 +45,11 @@ function drawBrandRow(ctx: SKRSContext2D) {
 
   ctx.font = `500 18px ${FONT_FAMILY.body}`;
   ctx.fillStyle = "rgba(243,231,206,.55)";
-  ctx.fillText("RESIDENCY 2026 · BUILDER PASS", x, y + 34);
+  ctx.fillText("RESIDENCY 2026 · BUILDER PASS", x, y + 30);
+
+  ctx.font = `500 16px ${FONT_FAMILY.body}`;
+  ctx.fillStyle = "rgba(231,179,60,.75)";
+  ctx.fillText("ACCESS ALL STATIONS OF THE BUILD", x, y + 56);
   ctx.restore();
 
   // MEMBER pill, top right
@@ -60,7 +64,7 @@ function drawBrandRow(ctx: SKRSContext2D) {
   ctx.beginPath();
   ctx.roundRect(pillX, pillY, pillW, pillH, pillH / 2);
   ctx.fill();
-  ctx.fillStyle = COLORS.forestMid;
+  ctx.fillStyle = COLORS.ink;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(pillLabel, pillX + pillW / 2, pillY + pillH / 2 + 1);
@@ -69,11 +73,13 @@ function drawBrandRow(ctx: SKRSContext2D) {
 
 function drawPortraitRow(ctx: SKRSContext2D, photo: Image, builderId: string) {
   const photoX = CONTENT_PAD;
-  const photoY = CONTENT_PAD + 60;
-  const photoW = 494;
-  const photoH = 572;
+  const photoY = CONTENT_PAD + 130;
+  const photoW = 455;
+  const photoH = 507;
+  const photoLayout = { x: photoX, y: photoY, w: photoW, h: photoH };
 
-  drawPhotoFrame(ctx, photo, { x: photoX, y: photoY, w: photoW, h: photoH });
+  drawPhotoFrame(ctx, photo, photoLayout);
+  drawVerifiedBadge(ctx, photoLayout);
 
   const dividerX = photoX + photoW + 44;
   ctx.save();
@@ -86,44 +92,67 @@ function drawPortraitRow(ctx: SKRSContext2D, photo: Image, builderId: string) {
   ctx.fillRect(dividerX, photoY, 2, photoH);
   ctx.restore();
 
-  const colX = dividerX + 44;
-  const colW = CARD_W - CONTENT_PAD - colX;
-  let y = photoY + 13;
+  const colX = dividerX + 46;
+  const gridRight = CARD_W - CONTENT_PAD;
+  const gridW = gridRight - colX;
+  const colGap = 29;
+  const colW = (gridW - colGap) / 2;
+  const col0X = colX;
+  const col1X = colX + colW + colGap;
+  // Bigger type and taller rows than the comp's own cramped list — the
+  // green header has far more room beside the photo than six small stat
+  // lines used to fill, so the grid is enlarged and vertically centered
+  // against the photo instead of shrinking to a corner.
+  const rowStep = 160;
+  const gridBlockH = rowStep * 2 + 36;
+  const gridTop = photoY + (photoH - gridBlockH) / 2;
 
-  const rows: Array<[string, string]> = [
-    ["DATES", "28 – 31 OCT 2026"],
-    ["LOCATION", "ANJUNA · GOA, INDIA"],
-    ["PASS NO.", builderId],
+  const cells: Array<[string, string, number, number, string?]> = [
+    ["DATES", "28 – 31 OCT 2026", col0X, gridTop],
+    ["VENUE", "ANJUNA, GOA", col1X, gridTop],
+    ["COHORT", "GOA · 2026", col0X, gridTop + rowStep],
+    ["ZONE", "ALL BUILD FLOORS", col1X, gridTop + rowStep],
+    ["PASS NO.", builderId, col0X, gridTop + rowStep * 2, COLORS.gold],
+    ["STATUS", "VERIFIED", col1X, gridTop + rowStep * 2, COLORS.gold],
   ];
 
-  rows.forEach(([label, value], i) => {
+  for (const [label, value, cx, labelY, valueColor] of cells) {
     ctx.save();
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.font = `500 17px ${FONT_FAMILY.body}`;
-    ctx.fillStyle = "rgba(243,231,206,.5)";
-    ctx.fillText(label, colX, y + 17);
+    ctx.font = `600 18px ${FONT_FAMILY.body}`;
+    ctx.fillStyle = "rgba(243,231,206,.45)";
+    ctx.fillText(label, cx, labelY);
 
-    const valueY = y + 51;
-    const size = fitText(ctx, value, colW, FONT_FAMILY.body, 27, 17);
+    const valueY = labelY + 36;
+    const size = fitText(ctx, value, colW, FONT_FAMILY.body, 30, 18);
     ctx.font = `700 ${size}px ${FONT_FAMILY.body}`;
-    ctx.fillStyle = label === "PASS NO." ? COLORS.gold : COLORS.cream;
-    ctx.fillText(value, colX, valueY);
-    ctx.restore();
+    ctx.fillStyle = valueColor ?? COLORS.cream;
+    ctx.fillText(value, cx, valueY);
 
-    y = valueY + 27;
-    if (i < rows.length - 1) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(243,231,206,.25)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(colX, y);
-      ctx.lineTo(CARD_W - CONTENT_PAD, y);
-      ctx.stroke();
-      ctx.restore();
-      y += 27;
+    if (label === "STATUS") {
+      const valueW = ctx.measureText(value).width;
+      drawCheckBadge(ctx, cx + valueW + 14, valueY - 10, 14, COLORS.gold);
     }
-  });
+    ctx.restore();
+  }
+}
+
+function drawCheckBadge(ctx: SKRSContext2D, cx: number, cy: number, r: number, color: string) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.lineWidth = 2.4;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(cx - r * 0.45, cy + r * 0.05);
+  ctx.lineTo(cx - r * 0.1, cy + r * 0.4);
+  ctx.lineTo(cx + r * 0.5, cy - r * 0.35);
+  ctx.stroke();
+  ctx.restore();
 }
 
 /** A scalloped cream hem where the header block meets the body — the pass's one flourish seam. */
@@ -156,7 +185,7 @@ function drawWaveHem(ctx: SKRSContext2D) {
     ctx.quadraticCurveTo(x0 + period * 0.75, baseY + amp, x0 + period, baseY);
   }
   ctx.strokeStyle = COLORS.gold;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 5;
   ctx.stroke();
   ctx.restore();
 }

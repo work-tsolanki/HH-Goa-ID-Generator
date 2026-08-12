@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LinkButton } from "@/components/Button";
 import Footer from "@/components/Footer";
 import Logo from "@/components/Logo";
 import { getCard } from "@/lib/storage";
+import { buildTweetText, buildTweetUrl } from "@/lib/tweet";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -39,8 +41,13 @@ export default async function SharePage({ params }: Params) {
   const card = await getCard(id);
   if (!card) notFound();
 
-  const tweetText = `I just built my Hacker House Goa 2026 builder pass — ${card.metadata.badgeTitle}. See you 28–31 Oct #FrameInGoa`;
-  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+  const h = await headers();
+  const host = h.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const shareUrl = `${protocol}://${host}/share/${id}`;
+
+  const tweetText = buildTweetText(card.metadata);
+  const tweetUrl = buildTweetUrl(tweetText, shareUrl);
 
   return (
     <div className="relative z-10 flex min-h-dvh w-full flex-1 flex-col">

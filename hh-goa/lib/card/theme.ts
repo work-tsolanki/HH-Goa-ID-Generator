@@ -9,11 +9,11 @@ export const CARD_H = 1630;
  */
 export const COLORS = {
   cream: "#f3e7ce",
-  forestTop: "#12874a",
-  forestMid: "#0b6839",
-  forestDeep: "#063d20",
-  gold: "#fee101",
-  pink: "#ff0080",
+  forestTop: "#12523a",
+  forestMid: "#0b3325",
+  forestDeep: "#072418",
+  gold: "#e7b33c",
+  pink: "#c4166b",
   ink: "#0b3325",
 } as const;
 

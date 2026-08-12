@@ -28,7 +28,8 @@ const PRESETS = [
   { label: "DESIGN ENG", value: "Design Engineer" },
 ];
 
-const PREVIEW_DEBOUNCE_MS = 700;
+const PREVIEW_DEBOUNCE_MS = 180;
+const CROP_DEBOUNCE_MS = 200;
 
 type Metrics = { v: number; w: number; h: number; x: number; y: number };
 
@@ -47,14 +48,12 @@ export default function GeneratorFlow() {
 
   const [raw, setRaw] = useState<string | null>(null);
   const [nat, setNat] = useState({ w: 1, h: 1 });
-  const [cropping, setCropping] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [dragActive, setDragActive] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoVersion, setPhotoVersion] = useState(0);
 
   // The card is generated in the background as soon as photo + name + stack
@@ -71,14 +70,15 @@ export default function GeneratorFlow() {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dragState = useRef<{ x: number; y: number } | null>(null);
+  const photoUrlRef = useRef<string | null>(null);
 
   const ready = Boolean(photoBlob && name.trim() && stack.trim());
+  const hasPhoto = raw !== null;
 
-  // The crop viewfinder's rendered width can only be read after it mounts,
-  // so it's tracked in state (via ResizeObserver) rather than read from the
-  // ref during render.
+  // The photo panel is a single persistent element (not remounted per
+  // phase), so its rendered width is tracked once via ResizeObserver rather
+  // than read from the ref during render.
   useEffect(() => {
-    if (!cropping) return;
     const el = cropRef.current;
     if (!el) return;
     const update = () => setViewSize(el.clientWidth || 324);
@@ -86,7 +86,7 @@ export default function GeneratorFlow() {
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [cropping]);
+  }, []);
 
   const runGenerate = useCallback(
     async (sig: string, blob: Blob, n: string, s: string, h: string): Promise<GenerateResponse> => {
@@ -148,7 +148,6 @@ export default function GeneratorFlow() {
     setRaw(url);
     setZoom(1);
     setOffset({ x: 0, y: 0 });
-    setCropping(true);
   }
 
   const handleFile = useCallback(async (raw: File | null | undefined) => {
@@ -180,7 +179,10 @@ export default function GeneratorFlow() {
     }
   }, []);
 
-  function confirmCrop() {
+  // Auto-saves the current pan/zoom framing as the working photo — no
+  // "confirm" step. Debounced so a drag or a zoom scroll doesn't redraw the
+  // canvas on every intermediate frame, only once motion settles.
+  function commitCrop() {
     const img = imgRef.current;
     if (!img || !cropRef.current) return;
     const { v, w, h, x, y } = metrics();
@@ -198,34 +200,42 @@ export default function GeneratorFlow() {
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
-        if (photoUrl) URL.revokeObjectURL(photoUrl);
+        const url = URL.createObjectURL(blob);
+        if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
+        photoUrlRef.current = url;
         setPhotoBlob(blob);
-        setPhotoUrl(URL.createObjectURL(blob));
         setPhotoVersion((v) => v + 1);
-        setCropping(false);
       },
       "image/jpeg",
       0.92,
     );
   }
 
+  // Re-commits the crop automatically whenever the photo or its framing
+  // changes, so the user never has to click a "use this crop" button.
+  useEffect(() => {
+    if (!raw) return;
+    const timer = setTimeout(commitCrop, CROP_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- commitCrop reads current raw/zoom/offset/viewSize via closure each time this effect body runs
+  }, [raw, zoom, offset, viewSize]);
+
   function goLanding() {
     setStep("landing");
   }
 
   function startOver() {
-    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
+    photoUrlRef.current = null;
     abortRef.current?.abort();
     setStep("build");
     setName("");
     setStack("");
     setHandle("");
     setRaw(null);
-    setCropping(false);
     setZoom(1);
     setOffset({ x: 0, y: 0 });
     setPhotoBlob(null);
-    setPhotoUrl(null);
     setPreviewResult(null);
     setPreviewSignature(null);
     setResult(null);
@@ -304,7 +314,7 @@ export default function GeneratorFlow() {
               className="absolute inset-0 bg-cover bg-no-repeat"
               style={{
                 backgroundImage: "url(/frame-generator/hero-scene.png)",
-                backgroundPosition: "center 88%",
+                backgroundPosition: "center 97%",
                 maskImage: "linear-gradient(to bottom, transparent 0%, #000 42%, #000 100%)",
                 WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, #000 42%, #000 100%)",
               }}
@@ -322,46 +332,81 @@ export default function GeneratorFlow() {
               {stepChip("03 SHIP", ready ? "#FEE101" : "#FFF3D6")}
             </div>
 
-            {cropping && raw ? (
-              <div className="neu flex flex-col gap-3.5 bg-[#FFFDF6] p-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-2.5">
-                  <span className="font-display text-[16px]">FRAME YOUR SHOT</span>
+            {/* A single persistent photo panel. Once a photo is loaded, the
+                box is always live for drag/zoom — there is no separate
+                "confirm crop" step; the current framing auto-saves itself
+                (debounced) whenever it changes. */}
+            <div className="neu flex flex-col gap-3.5 bg-[#FFFDF6] p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2.5">
+                <span className="font-display text-[16px]">YOUR PHOTO</span>
+                {hasPhoto && (
                   <span className="font-body text-[10px] font-medium tracking-[0.18em]">
                     DRAG TO MOVE · SCROLL TO ZOOM
                   </span>
-                </div>
-                <div
-                  ref={cropRef}
-                  onPointerDown={(e) => {
-                    dragState.current = { x: e.clientX, y: e.clientY };
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                    e.currentTarget.style.cursor = "grabbing";
-                  }}
-                  onPointerMove={(e) => {
-                    if (!dragState.current) return;
-                    const dx = e.clientX - dragState.current.x;
-                    const dy = e.clientY - dragState.current.y;
-                    dragState.current = { x: e.clientX, y: e.clientY };
-                    const m = metrics(undefined, offset.x + dx, offset.y + dy);
-                    setOffset({ x: m.x, y: m.y });
-                  }}
-                  onPointerUp={(e) => {
-                    dragState.current = null;
-                    e.currentTarget.style.cursor = "grab";
-                  }}
-                  onPointerCancel={() => {
-                    dragState.current = null;
-                  }}
-                  onWheel={(e) => {
-                    e.preventDefault();
-                    const z = Math.min(3, Math.max(1, zoom - e.deltaY * 0.0016));
-                    const m = metrics(z, offset.x, offset.y);
-                    setZoom(z);
-                    setOffset({ x: m.x, y: m.y });
-                  }}
-                  className="relative mx-auto aspect-square w-full max-w-[330px] cursor-grab touch-none overflow-hidden border-[3px] border-ink bg-ink select-none"
-                >
-                  {(() => {
+                )}
+              </div>
+
+              <div
+                ref={cropRef}
+                onClick={!hasPhoto ? () => inputRef.current?.click() : undefined}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragActive(true);
+                }}
+                onDragLeave={() => setDragActive(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragActive(false);
+                  void handleFile(e.dataTransfer.files?.[0]);
+                }}
+                onPointerDown={
+                  hasPhoto
+                    ? (e) => {
+                        dragState.current = { x: e.clientX, y: e.clientY };
+                        e.currentTarget.setPointerCapture(e.pointerId);
+                        e.currentTarget.style.cursor = "grabbing";
+                      }
+                    : undefined
+                }
+                onPointerMove={
+                  hasPhoto
+                    ? (e) => {
+                        if (!dragState.current) return;
+                        const dx = e.clientX - dragState.current.x;
+                        const dy = e.clientY - dragState.current.y;
+                        dragState.current = { x: e.clientX, y: e.clientY };
+                        const m = metrics(undefined, offset.x + dx, offset.y + dy);
+                        setOffset({ x: m.x, y: m.y });
+                      }
+                    : undefined
+                }
+                onPointerUp={
+                  hasPhoto
+                    ? (e) => {
+                        dragState.current = null;
+                        e.currentTarget.style.cursor = "grab";
+                      }
+                    : undefined
+                }
+                onPointerCancel={hasPhoto ? () => (dragState.current = null) : undefined}
+                onWheel={
+                  hasPhoto
+                    ? (e) => {
+                        e.preventDefault();
+                        const z = Math.min(3, Math.max(1, zoom - e.deltaY * 0.0016));
+                        const m = metrics(z, offset.x, offset.y);
+                        setZoom(z);
+                        setOffset({ x: m.x, y: m.y });
+                      }
+                    : undefined
+                }
+                className={`relative mx-auto aspect-square w-full max-w-[330px] overflow-hidden border-[3px] border-ink select-none ${
+                  hasPhoto ? "cursor-grab touch-none" : "cursor-pointer"
+                }`}
+                style={{ background: hasPhoto ? "#101010" : dragActive ? "#FEE101" : "#FFFDF6" }}
+              >
+                {hasPhoto &&
+                  (() => {
                     const m = metrics();
                     return (
                       <div
@@ -374,6 +419,8 @@ export default function GeneratorFlow() {
                       />
                     );
                   })()}
+
+                {hasPhoto && (
                   <svg viewBox="0 0 90 90" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full">
                     <g stroke="#FFF3D6" strokeWidth="0.4" opacity="0.45">
                       <path d="M30 0v90M60 0v90M0 30h90M0 60h90" />
@@ -382,101 +429,65 @@ export default function GeneratorFlow() {
                       <path d="M4 14V4h10M76 4h10v10M86 76v10H76M14 86H4V76" />
                     </g>
                   </svg>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-display text-[13px]">−</span>
-                  <input
-                    type="range"
-                    min="1"
-                    max="3"
-                    step="0.01"
-                    value={zoom}
-                    onChange={(e) => {
-                      const z = parseFloat(e.target.value);
-                      const m = metrics(z, offset.x, offset.y);
-                      setZoom(z);
-                      setOffset({ x: m.x, y: m.y });
-                    }}
-                    className="h-6 flex-1 cursor-pointer accent-pink"
-                  />
-                  <span className="font-display text-[13px]">＋</span>
-                </div>
-                <div className="flex flex-wrap gap-2.5">
-                  <Button type="button" tone="gold" onClick={confirmCrop} className="min-w-[140px] flex-1">
-                    Use This Crop ✓
-                  </Button>
-                  <Button
-                    type="button"
-                    tone="paper"
-                    onClick={() => {
-                      setZoom(1);
-                      setOffset({ x: 0, y: 0 });
-                    }}
-                  >
-                    Reset
-                  </Button>
-                  <Button type="button" tone="paper" onClick={() => inputRef.current?.click()}>
-                    Another
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div
-                onClick={() => inputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragActive(true);
-                }}
-                onDragLeave={() => setDragActive(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragActive(false);
-                  void handleFile(e.dataTransfer.files?.[0]);
-                }}
-                className="neu neu-btn relative flex flex-col items-center justify-center gap-3 border-dashed! px-5 text-center transition-colors"
-                style={{
-                  background: dragActive ? "#FEE101" : "#FFFDF6",
-                  padding: photoUrl ? "16px 20px" : "clamp(28px,5vw,44px) 20px",
-                }}
-              >
-                {photoUrl ? (
-                  <div className="flex items-center gap-3.5">
-                    <div
-                      className="h-14 w-14 border-[3px] border-ink bg-cover bg-center"
-                      style={{ backgroundImage: `url(${photoUrl})` }}
-                    />
-                    <span className="font-display text-left text-[15px] leading-tight">
-                      PHOTO LOCKED IN
-                      <br />
-                      <span className="font-body text-[11px] font-medium tracking-[0.16em]">TAP TO REPLACE</span>
+                )}
+
+                {!hasPhoto && (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center">
+                    <span className="neu flex h-13 w-13 items-center justify-center bg-gold font-display text-[22px]">
+                      ＋
                     </span>
-                    <Button
-                      type="button"
-                      tone="gold"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (raw) setCropping(true);
-                      }}
-                    >
-                      Adjust
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <span className="neu flex h-13 w-13 items-center justify-center bg-gold font-display text-[22px]">＋</span>
                     <span className="font-display text-[20px]">DROP YOUR PHOTO</span>
                     <span className="font-body text-[12px] font-medium tracking-[0.14em]">
                       OR TAP TO BROWSE · JPG PNG WEBP HEIC · 10MB
                     </span>
-                  </>
+                  </div>
                 )}
+
                 {busy && (
                   <span className="bg-paper/85 absolute inset-0 flex items-center justify-center font-display text-[14px]">
                     Preparing photo&hellip;
                   </span>
                 )}
               </div>
-            )}
+
+              {hasPhoto && (
+                <>
+                  <div className="flex items-center gap-3">
+                    <span className="font-display text-[13px]">−</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="3"
+                      step="0.01"
+                      value={zoom}
+                      onChange={(e) => {
+                        const z = parseFloat(e.target.value);
+                        const m = metrics(z, offset.x, offset.y);
+                        setZoom(z);
+                        setOffset({ x: m.x, y: m.y });
+                      }}
+                      className="h-6 flex-1 cursor-pointer accent-pink"
+                    />
+                    <span className="font-display text-[13px]">＋</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
+                    <Button
+                      type="button"
+                      tone="paper"
+                      onClick={() => {
+                        setZoom(1);
+                        setOffset({ x: 0, y: 0 });
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button type="button" tone="paper" onClick={() => inputRef.current?.click()}>
+                      Change Photo
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
 
             <form onSubmit={generate} className="flex flex-col gap-5">
               <label className="flex flex-col gap-2">
@@ -535,7 +546,7 @@ export default function GeneratorFlow() {
                 className={`neu-lg ${ready ? "" : "cursor-not-allowed opacity-50"}`}
                 disabled={!ready || submitting}
               >
-                {submitting ? "Shipping…" : ready ? "Generate My Pass ⚡" : "Not Ready To Ship"}
+                {submitting ? "Shipping…" : ready ? "Generate My Pass" : "Not Ready To Ship"}
               </Button>
             </form>
           </div>
