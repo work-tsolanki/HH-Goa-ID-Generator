@@ -15,6 +15,7 @@ export function buildTweetText({ name, badgeTitle, builderClass }: TweetCardFact
     `${name} · ${badgeTitle} · goa 2026`,
     "",
     "28–31 oct. build in goa, ship from paradise.",
+    "build yours too 👇",
     "#FrameInGoa #HackerHouseGoa @247pmstudio",
   ].join("\n");
 }
