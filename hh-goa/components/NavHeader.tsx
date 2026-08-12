@@ -41,11 +41,15 @@ export default function NavHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink px-4 py-3.5 sm:px-10">
-        <button type="button" onClick={onLogoClick} className="neu neu-btn flex items-center gap-2.5 bg-forest px-3.5 py-2.5">
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-1.5 border-b-[3px] border-ink px-2.5 py-3 sm:gap-3.5 sm:px-10 sm:py-3.5">
+        <button
+          type="button"
+          onClick={onLogoClick}
+          className="neu neu-btn flex min-w-0 items-center gap-2 bg-forest px-2 py-2 sm:gap-2.5 sm:px-3.5 sm:py-2.5"
+        >
           <Logo className="text-paper" />
         </button>
-        <div className="flex items-center gap-2.5">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <button
             type="button"
             onClick={openHype}
@@ -73,7 +77,7 @@ export default function NavHeader({
                   onClick={toggleMute}
                   aria-label={muted ? "Unmute" : "Mute"}
                   aria-pressed={muted}
-                  className="neu neu-btn bg-forest text-paper flex h-9 w-9 items-center justify-center font-display text-[15px]"
+                  className="neu neu-btn bg-forest text-paper flex h-10 w-10 items-center justify-center font-display text-[15px]"
                 >
                   {muted ? "🔇" : "🔊"}
                 </button>
@@ -81,7 +85,7 @@ export default function NavHeader({
                   type="button"
                   onClick={() => setHypeOpen(false)}
                   aria-label="Close"
-                  className="neu neu-btn bg-gold text-ink flex h-9 w-9 items-center justify-center font-display text-[16px]"
+                  className="neu neu-btn bg-gold text-ink flex h-10 w-10 items-center justify-center font-display text-[16px]"
                 >
                   ✕
                 </button>

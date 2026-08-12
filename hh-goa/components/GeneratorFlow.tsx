@@ -364,19 +364,25 @@ export default function GeneratorFlow() {
           </section>
 
           <section className="relative min-h-0 flex-1 overflow-hidden">
-            {/* Ground-scene crop of the same single hero-scene.png. Fills
-                whatever vertical space is actually left after the nav,
-                hero text, and footer take their heights — the page is
-                locked to one viewport (see the h-dvh wrapper above), so
-                this can't rely on a fixed aspect-ratio the way it used to;
-                it has to adapt to whatever room remains instead.
-                hero-scene.png is 2400x1584: the full ground scene
-                (mountains, cabin, campfire, palms) lives in rows 959-1583,
-                bottom-anchored, so "center bottom" always shows the most
-                complete version of the scene that fits. */}
+            {/* Fills whatever vertical space is left after the nav, hero
+                text, and footer take their heights — the page is locked to
+                one viewport (see the h-dvh wrapper above), so this can't
+                rely on a fixed aspect-ratio; it has to adapt to whatever
+                room remains instead. That's exactly what broke on real
+                phones: hero-scene.png's full 2400x1584 canvas is mostly
+                transparent between the top leaf crop and the ground scene
+                (which only starts at row 959), and on a container shaped
+                taller than the source image's own aspect ratio,
+                object-fit:cover scales by height to guarantee coverage —
+                which crops nothing vertically, so the transparent middle
+                band rendered instead of the ground scene, showing the
+                fixed page background through it. hero-scene-ground.png
+                (scripts/crop-ground-scene.mjs) is a pre-crop of just that
+                dense band (rows 959-1584, 2400x625) so cover always has
+                real content to show regardless of container shape. */}
             {/* eslint-disable-next-line @next/next/no-img-element -- static illustration, not a Next-optimizable content asset */}
             <img
-              src="/frame-generator/hero-scene.png"
+              src="/frame-generator/hero-scene-ground.png"
               alt=""
               aria-hidden
               className="absolute inset-0 h-full w-full"

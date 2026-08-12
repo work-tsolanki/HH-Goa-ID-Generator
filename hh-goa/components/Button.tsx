@@ -10,8 +10,8 @@ const tones = {
 } as const;
 
 const sizes = {
-  md: "px-5 py-3.5 text-[13px] tracking-[0.02em]",
-  lg: "px-7 py-5 text-[17px] tracking-[0.02em]",
+  md: "px-2.5 py-3 text-[11px] tracking-[0.01em] sm:px-5 sm:py-3.5 sm:text-[13px] sm:tracking-[0.02em]",
+  lg: "px-5 py-4 text-[14px] tracking-[0.02em] sm:px-7 sm:py-5 sm:text-[17px]",
 } as const;
 
 type Tone = keyof typeof tones;

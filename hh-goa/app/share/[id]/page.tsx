@@ -52,13 +52,13 @@ export default async function SharePage({ params }: Params) {
 
   return (
     <div className="relative z-10 flex min-h-dvh w-full flex-1 flex-col">
-      <header className="sticky top-0 z-40 flex items-center justify-between gap-3.5 border-b-[3px] border-ink bg-paper px-4 py-3.5 sm:px-10">
-        <Link href="/" className="neu neu-btn flex items-center gap-2.5 bg-forest px-3.5 py-2.5">
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-1.5 border-b-[3px] border-ink bg-paper px-2.5 py-3 sm:gap-3.5 sm:px-10 sm:py-3.5">
+        <Link href="/" className="neu neu-btn flex min-w-0 items-center gap-2 bg-forest px-2 py-2 sm:gap-2.5 sm:px-3.5 sm:py-2.5">
           <Logo className="text-paper" />
         </Link>
-        <Link href="/" className="neu neu-btn font-display bg-gold px-5 py-3.5 text-[13px] tracking-[0.02em] uppercase">
+        <LinkButton href="/" tone="gold" className="shrink-0 whitespace-nowrap">
           Build My Pass
-        </Link>
+        </LinkButton>
       </header>
 
       <main className="animate-pop-in relative z-1 mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center gap-7 px-4 py-8 text-center sm:px-10">

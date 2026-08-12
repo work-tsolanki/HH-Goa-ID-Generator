@@ -30,6 +30,16 @@
   --font-devanagari: var(--font-devanagari);
 }
 
+html,
+body {
+  /* Backstop, not the fix: nothing in this system should ever be wide
+     enough to trigger this, but a nowrap wordmark next to a nowrap CTA
+     is exactly the shape of bug that causes silent horizontal scroll on
+     a phone (confirmed on-device) — this keeps that failure mode from
+     ever clipping content off the edge of the viewport again. */
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
