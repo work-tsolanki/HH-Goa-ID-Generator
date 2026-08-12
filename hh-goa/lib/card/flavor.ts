@@ -6,9 +6,73 @@ export type Flavor = {
 
 type Rule = {
   keywords: string[];
-  classes: string[];
-  taglines: string[];
+  // Domain-flavored nouns, combined with a shared archetype suffix to form
+  // the builder class, e.g. "Prompt" + "Whisperer" -> "Prompt Whisperer".
+  classPrefixes: string[];
+  // Domain-flavored objects, combined with a shared gerund verb to form the
+  // tagline, e.g. "Shipping" + "Intelligence" -> "Shipping Intelligence".
+  taglineObjects: string[];
 };
+
+// Shared across every category so the combinatorial space stays huge without
+// needing a hand-written archetype list per domain — 13 categories x ~8
+// prefixes each, crossed with these ~28 suffixes, is 2900+ builder-class
+// combinations alone (previously 4 fixed phrases per category).
+const CLASS_SUFFIXES = [
+  "Whisperer",
+  "Alchemist",
+  "Wizard",
+  "Sensei",
+  "Nomad",
+  "Artisan",
+  "Architect",
+  "Sorcerer",
+  "Bard",
+  "Ninja",
+  "Sherpa",
+  "Ranger",
+  "Guardian",
+  "Tamer",
+  "Smuggler",
+  "Pirate",
+  "Druid",
+  "Poet",
+  "Custodian",
+  "Renegade",
+  "Wrangler",
+  "Hero",
+  "Bandit",
+  "Tinkerer",
+  "Prototyper",
+  "Mercenary",
+  "Oracle",
+  "Conjurer",
+];
+
+const TAGLINE_VERBS = [
+  "Shipping",
+  "Building",
+  "Debugging",
+  "Deploying",
+  "Automating",
+  "Prototyping",
+  "Refactoring",
+  "Compiling",
+  "Crafting",
+  "Polishing",
+  "Breaking",
+  "Fixing",
+  "Chasing",
+  "Scaling",
+  "Optimizing",
+  "Bootstrapping",
+  "Architecting",
+  "Sketching",
+  "Wrangling",
+  "Taming",
+  "Hacking",
+  "Committing To",
+];
 
 // Deterministic keyword -> flavor mapping. No external calls: same input always
 // produces the same output, picked by a stable hash so results still feel varied
@@ -16,91 +80,210 @@ type Rule = {
 const RULES: Rule[] = [
   {
     keywords: ["ai", "ml", "machine learning", "llm", "genai", "deep learning", "neural"],
-    classes: ["Prompt Whisperer", "Neural Alchemist", "Model Tamer", "Gradient Wizard"],
-    taglines: ["Training the Future", "Shipping Intelligence", "Teaching Machines to Think", "Fine-Tuning Reality"],
+    classPrefixes: ["Prompt", "Neural", "Gradient", "Model", "Token", "Latent", "Embedding", "Inference"],
+    taglineObjects: [
+      "Intelligence",
+      "the Future",
+      "Sentience",
+      "the Next Model",
+      "Machine Minds",
+      "the Singularity",
+      "Synthetic Thought",
+      "Tomorrow's Brains",
+    ],
   },
   {
     keywords: ["frontend", "front-end", "react", "vue", "svelte", "next.js", "nextjs", "ui engineer", "css"],
-    classes: ["Pixel Sorcerer", "Component Whisperer", "Layout Alchemist", "Interface Bard"],
-    taglines: ["Shipping Smooth UI", "Pixel-Perfect & Proud", "Rendering the Vibe", "Crafting Every Click"],
+    classPrefixes: ["Pixel", "Component", "Layout", "Interface", "Render", "Viewport", "Grid", "State"],
+    taglineObjects: [
+      "Every Pixel",
+      "the Vibe",
+      "Smooth UI",
+      "Buttery Interfaces",
+      "the User Experience",
+      "Clean Interfaces",
+      "Delightful Screens",
+      "the Frontend",
+    ],
   },
   {
     keywords: ["backend", "back-end", "api", "node", "server", "database", "sql", "golang", "django"],
-    classes: ["Terminal Wizard", "API Sherpa", "Query Whisperer", "Server Sensei"],
-    taglines: ["Building the Future", "Keeping Servers Happy", "Scaling Quietly", "Shipping the Backbone"],
+    classPrefixes: ["Terminal", "API", "Query", "Server", "Schema", "Endpoint", "Cache", "Socket"],
+    taglineObjects: [
+      "the Backbone",
+      "Uptime",
+      "the API",
+      "Server Sanity",
+      "the Infrastructure",
+      "Reliable Systems",
+      "the Data Layer",
+      "Scalable Systems",
+    ],
   },
   {
     keywords: ["fullstack", "full-stack", "full stack", "swe", "software engineer", "developer", "engineer"],
-    classes: ["Full-Stack Nomad", "Code Alchemist", "Ship-It Specialist", "Stack Ranger"],
-    taglines: ["Building the Future", "Shipping End to End", "From Idea to Deploy", "Committing to Chaos"],
+    classPrefixes: ["Stack", "Full-Stack", "Ship-It", "Deploy", "Commit", "Sprint", "Build", "Release"],
+    taglineObjects: [
+      "End to End",
+      "the Whole Stack",
+      "Idea to Deploy",
+      "the Full Pipeline",
+      "Chaos",
+      "the Product",
+      "Both Ends",
+      "the Entire App",
+    ],
   },
   {
     keywords: ["mobile", "ios", "android", "flutter", "react native", "swift", "kotlin"],
-    classes: ["Pocket Architect", "App Whisperer", "Native Nomad", "Thumb-Zone Tactician"],
-    taglines: ["Shipping to Every Pocket", "Building on the Go", "Native & Proud", "Tapping Into Tomorrow"],
+    classPrefixes: ["Pocket", "App", "Native", "Thumb-Zone", "Widget", "Notification", "Gesture", "Sensor"],
+    taglineObjects: [
+      "Every Pocket",
+      "the App Store",
+      "Native Experiences",
+      "On-the-Go Builds",
+      "Thumb-First UX",
+      "Every Device",
+      "the Mobile Web",
+      "Tomorrow's Apps",
+    ],
   },
   {
     keywords: ["data", "analytics", "scientist", "analyst", "etl", "pipeline"],
-    classes: ["Data Whisperer", "Insight Smuggler", "Pipeline Pirate", "Chart Sorcerer"],
-    taglines: ["Finding Signal in Noise", "Shipping Insights", "Turning Rows into Stories", "Building the Future"],
+    classPrefixes: ["Data", "Insight", "Pipeline", "Chart", "Metric", "Dataset", "Query", "Signal"],
+    taglineObjects: [
+      "Signal from Noise",
+      "Insights",
+      "the Numbers",
+      "Clean Datasets",
+      "Hidden Patterns",
+      "the Pipeline",
+      "Rows into Stories",
+      "Tomorrow's Decisions",
+    ],
   },
   {
     keywords: ["devops", "sre", "infra", "cloud", "platform", "kubernetes", "docker"],
-    classes: ["Uptime Guardian", "Cloud Whisperer", "Infra Alchemist", "Deploy Druid"],
-    taglines: ["Keeping the Lights On", "Shipping at 3am", "Automating Everything", "Building the Future"],
+    classPrefixes: ["Uptime", "Cloud", "Infra", "Deploy", "Container", "Cluster", "Pipeline", "Node"],
+    taglineObjects: [
+      "Uptime",
+      "the Cloud",
+      "Infrastructure",
+      "Automated Deploys",
+      "the Pipeline",
+      "Reliability",
+      "Zero Downtime",
+      "the Platform",
+    ],
   },
   {
     keywords: ["design", "designer", "ux", "ui/ux", "product design", "figma"],
-    classes: ["Pixel Perfectionist", "Vibe Architect", "Interface Poet", "Craft Custodian"],
-    taglines: ["Designing the Future", "Sweating Every Pixel", "Making It Feel Right", "Shipping Delight"],
+    classPrefixes: ["Pixel", "Vibe", "Interface", "Craft", "Palette", "Layout", "Prototype", "Canvas"],
+    taglineObjects: [
+      "Delight",
+      "the Vibe",
+      "Pixel Perfection",
+      "the User Journey",
+      "Beautiful Interfaces",
+      "the Design System",
+      "Every Detail",
+      "Craft",
+    ],
   },
   {
     keywords: ["blockchain", "web3", "crypto", "solidity", "smart contract"],
-    classes: ["Chain Whisperer", "Block Alchemist", "Ledger Nomad", "Gas Fee Gambler"],
-    taglines: ["Building on Chain", "Shipping Trustlessly", "Decentralizing Everything", "Building the Future"],
+    classPrefixes: ["Chain", "Block", "Ledger", "Gas Fee", "Wallet", "Contract", "Node", "Token"],
+    taglineObjects: [
+      "On Chain",
+      "Trustless Systems",
+      "the Ledger",
+      "Decentralization",
+      "Smart Contracts",
+      "the Protocol",
+      "Tomorrow's Money",
+      "the Chain",
+    ],
   },
   {
     keywords: ["security", "hacker", "pentest", "infosec", "cyber"],
-    classes: ["Threat Whisperer", "Exploit Artisan", "Firewall Sensei", "Vuln Hunter"],
-    taglines: ["Breaking Things Responsibly", "Shipping Securely", "Finding the Cracks", "Building the Future"],
+    classPrefixes: ["Threat", "Exploit", "Firewall", "Vuln", "Payload", "Patch", "Cipher", "Breach"],
+    taglineObjects: [
+      "the Perimeter",
+      "Vulnerabilities",
+      "the Attack Surface",
+      "Trust",
+      "the Firewall",
+      "Weak Links",
+      "Safer Systems",
+      "the Exploit",
+    ],
   },
   {
     keywords: ["game", "unity", "unreal", "gamedev"],
-    classes: ["Pixel Ringmaster", "World Builder", "Frame-Rate Fanatic", "Level Alchemist"],
-    taglines: ["Shipping Playable Worlds", "Building the Future", "Chasing 60 FPS", "Making It Fun"],
+    classPrefixes: ["Pixel", "World", "Frame-Rate", "Level", "Sprite", "Physics", "Combo", "Boss-Fight"],
+    taglineObjects: [
+      "Playable Worlds",
+      "60 FPS",
+      "the Level",
+      "Fun",
+      "Immersive Worlds",
+      "the Game Loop",
+      "Every Frame",
+      "Tomorrow's Games",
+    ],
   },
   {
     keywords: ["product", "pm", "founder", "entrepreneur", "cofounder", "co-founder"],
-    classes: ["Roadmap Renegade", "Vision Wrangler", "Scope Whisperer", "Zero-to-One Nomad"],
-    taglines: ["Building the Future", "Shipping the Vision", "Turning Ideas Into Reality", "Finding Product-Market Fit"],
+    classPrefixes: ["Roadmap", "Vision", "Scope", "Zero-to-One", "Backlog", "Metric", "Growth", "Launch"],
+    taglineObjects: [
+      "the Vision",
+      "the Roadmap",
+      "Product-Market Fit",
+      "the Strategy",
+      "Tomorrow's Product",
+      "the Backlog",
+      "Zero to One",
+      "the Big Idea",
+    ],
   },
   {
     keywords: ["student", "learner", "beginner"],
-    classes: ["Curious Builder", "Rookie Rockstar", "First-Commit Hero", "Sandbox Nomad"],
-    taglines: ["Learning by Shipping", "Building the Future", "First Line, First Win", "Debugging Life"],
+    classPrefixes: ["Curious", "Rookie", "First-Commit", "Sandbox", "Bug-Hunt", "Syntax", "Console", "Tutorial"],
+    taglineObjects: [
+      "Life",
+      "the Basics",
+      "First Commits",
+      "Confidence",
+      "the Fundamentals",
+      "Tomorrow's Skills",
+      "Every Bug",
+      "the Learning Curve",
+    ],
   },
 ];
 
-const FALLBACK_CLASSES = [
-  "Terminal Wizard",
-  "Code Nomad",
-  "Ship-It Specialist",
-  "Sunset Debugger",
-  "Beach Byte Bandit",
-  "Palm Tree Prototyper",
-  "Wanderlust Engineer",
-  "Tide Pool Tinkerer",
+const FALLBACK_CLASS_PREFIXES = [
+  "Terminal",
+  "Code",
+  "Sunset",
+  "Beach",
+  "Palm-Tree",
+  "Wanderlust",
+  "Tide-Pool",
+  "Hammock",
+  "Coconut",
+  "Monsoon",
 ];
 
-const FALLBACK_TAGLINES = [
-  "Building the Future",
-  "Shipping in Paradise",
-  "Committing to Good Vibes",
-  "From Sand to Ship",
-  "Debugging by the Beach",
-  "Turning Coffee into Code",
-  "Making Waves",
-  "Building Something Great",
+const FALLBACK_TAGLINE_OBJECTS = [
+  "the Future",
+  "Good Vibes",
+  "Something Great",
+  "Paradise",
+  "the Timeline",
+  "Tomorrow",
+  "Good Code",
+  "the Vibe",
 ];
 
 function hashString(input: string): number {
@@ -125,11 +308,15 @@ export function getFlavor(rawStackOrRole: string): Flavor {
 
   const matched = RULES.find((rule) => rule.keywords.some((kw) => normalized.includes(kw)));
 
-  const builderClass = matched
-    ? pick(matched.classes, seed, 1)
-    : pick(FALLBACK_CLASSES, seed, 1);
+  const classPrefix = matched
+    ? pick(matched.classPrefixes, seed, 1)
+    : pick(FALLBACK_CLASS_PREFIXES, seed, 1);
+  const builderClass = `${classPrefix} ${pick(CLASS_SUFFIXES, seed, 3)}`;
 
-  const tagline = matched ? pick(matched.taglines, seed, 7) : pick(FALLBACK_TAGLINES, seed, 7);
+  const taglineObject = matched
+    ? pick(matched.taglineObjects, seed, 13)
+    : pick(FALLBACK_TAGLINE_OBJECTS, seed, 13);
+  const tagline = `${pick(TAGLINE_VERBS, seed, 11)} ${taglineObject}`;
 
   return {
     badgeTitle: badgeTitle.toUpperCase(),

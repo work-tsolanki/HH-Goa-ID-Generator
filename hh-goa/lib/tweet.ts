@@ -12,7 +12,7 @@ export type TweetCardFacts = {
 export function buildTweetText({ name, badgeTitle, builderClass }: TweetCardFacts): string {
   return [
     `apparently i'm a "${builderClass}" now`,
-    `${name} · ${badgeTitle} · goa 2026`,
+    `${name} · ${badgeTitle} · HH Goa 2026`,
     "",
     "28–31 oct. build in goa, ship from paradise.",
     "build yours too 👇",
