@@ -11,11 +11,11 @@ export type TweetCardFacts = {
  */
 export function buildTweetText({ name, badgeTitle, builderClass }: TweetCardFacts): string {
   return [
-    `apparently i'm a "${builderClass}" now`,
+    `apparently I'm a "${builderClass}" now`,
     `${name} · ${badgeTitle} · HH Goa 2026`,
     "",
     "28–31 oct. build in goa, ship from paradise.",
-    "build yours too 👇",
+    "go get your card 👇",
     "#FrameInGoa #HackerHouseGoa @247pmstudio",
   ].join("\n");
 }
