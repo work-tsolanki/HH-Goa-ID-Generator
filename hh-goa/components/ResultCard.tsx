@@ -69,12 +69,7 @@ export default function ResultCard({
       </div>
 
       <div className="flex flex-wrap justify-center gap-3.5">
-        <ShareToXButton
-          card={result}
-          imageUrl={result.imageUrl}
-          shareUrl={result.shareUrl}
-          className="neu-lg"
-        />
+        <ShareToXButton card={result} shareUrl={result.shareUrl} className="neu-lg" />
         <LinkButton
           href={result.downloadUrl}
           download

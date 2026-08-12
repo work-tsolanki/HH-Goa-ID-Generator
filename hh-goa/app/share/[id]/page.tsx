@@ -76,12 +76,7 @@ export default async function SharePage({ params }: Params) {
         </div>
 
         <div className="flex w-full max-w-sm flex-col gap-3.5">
-          <ShareToXButton
-            card={card.metadata}
-            imageUrl={card.imageUrl}
-            shareUrl={shareUrl}
-            className="neu-lg"
-          />
+          <ShareToXButton card={card.metadata} shareUrl={shareUrl} className="neu-lg" />
           <LinkButton href={`/api/download/${id}`} download tone="gold" size="lg" className="neu-lg">
             Download PNG
           </LinkButton>
