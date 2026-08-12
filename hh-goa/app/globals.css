@@ -181,3 +181,19 @@ body {
 .animate-bob {
   animation: hhg-bob 2.4s ease-out both;
 }
+
+/* Gentle idle bob + tilt for the eyebrow badge above the hero headline —
+   just enough motion to draw the eye without competing with the headline. */
+@keyframes hhg-badge-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+
+.animate-badge-float {
+  animation: hhg-badge-float 3.2s ease-in-out infinite;
+}

@@ -1,9 +1,8 @@
 /**
  * Fixed full-viewport paper texture shared by every screen: a dot-grid,
- * a rotated gold band with a hazard-stripe shadow, a pink halftone
- * corner, and two oversized watermarks (PASS / गोवा). Mounted once in
- * the root layout — position:fixed means it never needs to be repeated
- * per route.
+ * a hairline diagonal road-mark, a pink halftone corner, and two
+ * oversized watermarks (PASS / गोवा). Mounted once in the root layout —
+ * position:fixed means it never needs to be repeated per route.
  */
 export default function Background() {
   return (
@@ -16,16 +15,8 @@ export default function Background() {
       }}
     >
       <div
-        className="absolute -left-[12%] -right-[12%] top-[26%] h-[230px] border-t-[3px] border-b-[3px] border-ink bg-gold opacity-25"
+        className="absolute -left-[12%] -right-[12%] top-[26%] h-[2px] border-t border-dashed border-ink/25"
         style={{ transform: "rotate(-7deg)" }}
-      />
-      <div
-        className="absolute -left-[12%] -right-[12%] h-[26px] opacity-15"
-        style={{
-          top: "calc(26% + 250px)",
-          backgroundImage: "repeating-linear-gradient(45deg, #101010 0 12px, transparent 12px 24px)",
-          transform: "rotate(-7deg)",
-        }}
       />
       <div
         className="absolute -right-[60px] -bottom-[40px] h-[460px] w-[460px] opacity-40"

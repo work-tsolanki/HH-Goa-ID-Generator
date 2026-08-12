@@ -277,7 +277,11 @@ export default function GeneratorFlow() {
   );
 
   return (
-    <div className="relative z-10 flex min-h-dvh w-full flex-1 flex-col">
+    <div
+      className={`relative z-10 flex w-full flex-1 flex-col ${
+        step === "landing" ? "h-dvh overflow-hidden" : "min-h-dvh"
+      }`}
+    >
       <NavHeader
         onLogoClick={goLanding}
         ctaLabel={step === "landing" ? "CREATE" : "START OVER"}
@@ -286,42 +290,80 @@ export default function GeneratorFlow() {
 
       {step === "landing" && (
         <main className="relative z-1 flex flex-1 flex-col">
-          <section className="animate-pop-in mx-auto w-full max-w-[1240px] flex-none px-4 pt-5 pb-3.5 sm:px-10 sm:pt-8">
-            <h1 className="font-display text-[clamp(40px,7.6vw,96px)] leading-[0.88] tracking-[-0.035em] uppercase">
-              BUILD IN GOA,
-              <br />
-              SHIP FROM{" "}
-              <span
-                className="text-pink"
-                style={{ WebkitTextStroke: "3px #101010", paintOrder: "stroke fill" }}
-              >
-                PARADISE
-              </span>
-            </h1>
-            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-4 sm:gap-8">
-              <p className="max-w-[40ch] font-body text-[clamp(14px,1.5vw,17px)] leading-normal">
-                Drop a photo, name your stack, and walk out with a builder pass built for the
-                timeline. Two fields. No sign-up.
+          <section className="animate-pop-in relative flex-none">
+            {/* Corner-leaf crop of the single hero-scene.png, sitting behind
+                the text as a full-width background layer (not a separate
+                stitched asset — same file the scene strip below reuses).
+                hero-scene.png is 2400x1584 with leaf content starting at
+                row 178; this crops a tight 2400/260 window (rows 178-438)
+                so only the dense upper leaf cluster shows, not the thin
+                tapering fronds further down that would sprawl into the
+                headline/paragraph below. */}
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 -z-10 overflow-hidden"
+              style={{ aspectRatio: "2400 / 260" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- static illustration, not a Next-optimizable content asset */}
+              <img
+                src="/frame-generator/hero-scene.png"
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full"
+                style={{ objectFit: "cover", objectPosition: "center 13.4%" }}
+              />
+            </div>
+            <div className="mx-auto w-full max-w-[1240px] px-4 pt-5 pb-3.5 sm:px-10 sm:pt-8">
+              <div className="animate-badge-float neu neu-lg mx-auto mb-4 flex w-fit flex-col gap-1 bg-forest px-5 py-3.5 sm:px-7 sm:py-5">
+                <h1 className="font-display text-[clamp(24px,5.4vw,58px)] leading-[0.86] tracking-[-0.03em] whitespace-nowrap text-paper uppercase">
+                  HACKER HOUSE{" "}
+                  <span className="font-devanagari text-pink normal-case" style={{ fontSize: "0.85em" }}>
+                    गोवा
+                  </span>{" "}
+                  26
+                </h1>
+                <span className="font-body text-[10px] font-bold tracking-[0.22em] text-paper/60 uppercase sm:text-[12px]">
+                  Residency 2026 · Builder Pass
+                </span>
+              </div>
+              <p className="font-display text-[clamp(19px,3vw,34px)] leading-[0.95] tracking-[-0.02em] uppercase">
+                Build in Goa, ship from{" "}
+                <span
+                  className="text-pink"
+                  style={{ WebkitTextStroke: "2px #101010", paintOrder: "stroke fill" }}
+                >
+                  paradise
+                </span>
               </p>
-              <Button tone="gold" size="lg" className="neu-lg whitespace-nowrap" onClick={() => setStep("build")}>
-                Create My Pass →
-              </Button>
+              <div className="mt-3.5 flex flex-wrap items-center justify-between gap-4 sm:gap-8">
+                <p className="max-w-[40ch] font-body text-[clamp(14px,1.5vw,17px)] leading-normal">
+                  Drop a photo, name your stack, and walk out with a builder pass built for the
+                  timeline. Two fields. No sign-up.
+                </p>
+                <Button tone="gold" size="lg" className="neu-lg whitespace-nowrap" onClick={() => setStep("build")}>
+                  Create My Pass →
+                </Button>
+              </div>
             </div>
           </section>
 
-          <section className="relative min-h-[220px] flex-1 overflow-hidden leading-none">
-            <div
-              className="absolute inset-0 bg-cover bg-no-repeat"
-              style={{
-                backgroundImage: "url(/frame-generator/hero-scene.png)",
-                // Plain bottom-anchored cover — no extra zoom/scale, so the
-                // illustration renders at its natural cover size (same as
-                // before); the top crop comes only from the position anchor
-                // plus the mask fade below.
-                backgroundPosition: "center bottom",
-                maskImage: "linear-gradient(to bottom, transparent 22%, #000 52%, #000 100%)",
-                WebkitMaskImage: "linear-gradient(to bottom, transparent 22%, #000 52%, #000 100%)",
-              }}
+          <section className="relative min-h-0 flex-1 overflow-hidden">
+            {/* Ground-scene crop of the same single hero-scene.png. Fills
+                whatever vertical space is actually left after the nav,
+                hero text, and footer take their heights — the page is
+                locked to one viewport (see the h-dvh wrapper above), so
+                this can't rely on a fixed aspect-ratio the way it used to;
+                it has to adapt to whatever room remains instead.
+                hero-scene.png is 2400x1584: the full ground scene
+                (mountains, cabin, campfire, palms) lives in rows 959-1583,
+                bottom-anchored, so "center bottom" always shows the most
+                complete version of the scene that fits. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- static illustration, not a Next-optimizable content asset */}
+            <img
+              src="/frame-generator/hero-scene.png"
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full"
+              style={{ objectFit: "cover", objectPosition: "center bottom" }}
             />
           </section>
         </main>
